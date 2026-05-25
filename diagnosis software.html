@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Diagnostic Lab Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{height:100%}
+:root{
+  --primary:#4F46E5;--primary-dark:#4338CA;--primary-deeper:#3730A3;
+  --primary-light:#EEF2FF;--primary-mid:#818CF8;
+  --accent:#312E81;--accent2:#06B6D4;
+  --white:#FFFFFF;--bg:#F8FAFC;--bg2:#F1F5F9;
+  --text:#0F172A;--text2:#334155;--text3:#64748B;--text4:#94A3B8;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --success:#10B981;--success-bg:#D1FAE5;--success-border:#A7F3D0;
+  --danger:#EF4444;--danger-bg:#FEE2E2;--danger-border:#FECACA;
+  --warning:#F59E0B;--warning-bg:#FEF3C7;--warning-border:#FDE68A;
+  --card:rgba(255, 255, 255, 0.85);
+  --sidebar-w:240px;
+  --r:6px;--r-sm:4px;--r-xs:3px;
+}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100%;height:100%;font-size:14px;overflow-x:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);background:#1e293b;
+  position:fixed;top:0;left:0;height:100%;min-height:100vh;z-index:100;
+  border-right:1px solid #334155;
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:width .2s;
+}
+.sb-logo{
+  padding:16px 18px;border-bottom:1px solid #334155;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.sb-logo-icon{
+  width:36px;height:36px;flex-shrink:0;
+  background:var(--primary);
+  border-radius:4px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:18px;overflow:hidden;
+}
+.sb-logo-icon img{width:100%;height:100%;object-fit:cover}
+.sb-logo-text{font-size:13px;font-weight:600;color:#f1f5f9;line-height:1.25}
+.sb-logo-sub{font-size:10px;color:#64748b}
+
+.sb-nav{padding:10px 10px;flex:1;overflow-y:auto}
+.sb-nav::-webkit-scrollbar{width:3px}
+.sb-nav::-webkit-scrollbar-thumb{background:#334155}
+.nav-section-label{
+  font-size:9px;font-weight:600;color:#475569;
+  letter-spacing:.12em;text-transform:uppercase;padding:0 8px;margin:14px 0 4px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 10px;border-radius:4px;
+  cursor:pointer;color:#94a3b8;font-size:12.5px;font-weight:500;
+  margin-bottom:1px;position:relative;
+}
+
+.nav-item.active{background:rgba(79,70,229,0.15);color:#a5b4fc}
+.nav-item.active::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;
+  width:2px;background:var(--primary-mid);border-radius:0 2px 2px 0;
+}
+.nav-item i{font-size:16px;flex-shrink:0}
+.nav-badge{
+  margin-left:auto;background:var(--primary);color:#fff;
+  font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px;
+}
+.nav-badge.orange{background:var(--warning)}
+
+.sb-add-btn{padding:0 10px 12px;flex-shrink:0}
+.sb-add-btn button{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px;background:var(--primary);
+  color:#fff;border:none;border-radius:4px;
+  font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:600;
+  cursor:pointer;
+}
+
+
+.sb-footer{
+  padding:10px 10px 14px;border-top:1px solid #334155;flex-shrink:0;
+}
+.user-card{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:4px;cursor:pointer;
+}
+
+.user-av{
+  width:32px;height:32px;border-radius:4px;flex-shrink:0;
+  background:var(--primary);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;
+}
+.user-name{font-size:12.5px;font-weight:600;color:#e2e8f0}
+.user-role{font-size:10.5px;color:#64748b}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{
+  background:#ffffff;border-bottom:1px solid var(--border);
+  padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-left .page-title{font-size:18px;font-weight:600;color:var(--text);line-height:1.1}
+.topbar-left .page-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:4px;
+  font-family:'Poppins',sans-serif;font-size:12.5px;font-weight:500;
+  cursor:pointer;border:none;line-height:1;
+}
+.btn-primary{background:var(--primary);color:#fff;}
+
+.btn-outline{background:var(--white);color:var(--primary);border:1px solid var(--primary);}
+
+.btn-ghost{background:transparent;color:var(--text3);border:1px solid var(--border)}
+
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-sm{padding:5px 10px;font-size:11.5px}
+.btn-icon{padding:6px;border-radius:4px}
+
+/* ── CONTENT ── */
+.content{padding:28px 32px}
+
+/* ── HERO ── */
+.hero{
+  background:#1e293b;
+  border-radius:6px;padding:24px 28px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+  border:1px solid #334155;
+}
+.hero::before{display:none}
+.hero::after{display:none}
+.hero-l{position:relative;z-index:1;max-width:480px}
+.hero-greeting{font-size:11px;font-weight:500;color:#64748b;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.hero-title{font-size:20px;font-weight:600;color:#f1f5f9;line-height:1.3;margin-bottom:7px}
+.hero-title span{color:#a5b4fc}
+.hero-sub{font-size:12px;color:#64748b;line-height:1.65}
+.hero-pills{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.hero-pill{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,.06);border:1px solid #334155;
+  border-radius:4px;padding:5px 11px;
+  font-size:11.5px;font-weight:500;color:#94a3b8;
+  cursor:default;
+}
+.hero-pill i{font-size:13px;color:#818cf8}
+.hero-r{position:relative;z-index:1;display:flex;gap:10px;flex-shrink:0}
+.hero-stat{
+  background:rgba(255,255,255,.05);border:1px solid #334155;
+  border-radius:6px;padding:14px 18px;text-align:center;
+  min-width:96px;
+}
+.hero-stat-n{font-size:26px;font-weight:700;color:#f1f5f9;line-height:1;margin-bottom:3px}
+.hero-stat-l{font-size:10px;color:#64748b;font-weight:500}
+.hero-dot{width:6px;height:6px;border-radius:50%;margin:6px auto 0;background:#818cf8;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.6)}}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;gap:12px;margin-bottom:18px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.stat-card{
+  background:#fff;border-radius:6px;border:1px solid var(--border);
+  padding:18px 20px;position:relative;overflow:hidden;
+}
+
+.stat-card::after{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:3px;
+  background:var(--primary);border-radius:0;
+}
+.stat-card.green::after{background:var(--success)}
+.stat-card.orange::after{background:var(--warning)}
+.stat-card.red::after{background:var(--danger)}
+.stat-card.cyan::after{background:var(--accent2)}
+.stat-icon{width:36px;height:36px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.si-blue{background:var(--primary-light);color:var(--primary)}
+.si-green{background:var(--success-bg);color:var(--success)}
+.si-orange{background:var(--warning-bg);color:var(--warning)}
+.si-red{background:var(--danger-bg);color:var(--danger)}
+.si-cyan{background:#ECFEFF;color:var(--accent2)}
+.stat-label{font-size:11.5px;color:var(--text3);font-weight:500;margin-bottom:2px}
+.stat-value{font-size:22px;font-weight:700;color:var(--text);line-height:1}
+.stat-change{font-size:11px;color:var(--success);margin-top:4px;display:flex;align-items:center;gap:3px}
+.stat-change.down{color:var(--danger)}
+
+/* ── CARD ── */
+.card{background:#fff;border:1px solid var(--border);border-radius:6px;padding:20px;}
+
+.card-title{font-size:13.5px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  font-size:11px;font-weight:600;color:var(--text3);
+  text-transform:uppercase;letter-spacing:.05em;
+  padding:8px 12px;border-bottom:1px solid var(--border);
+  text-align:left;background:#F8FAFC;white-space:nowrap;
+}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text)}
+tr:last-child td{border-bottom:none}
+
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;gap:4px}
+.b-success{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.b-warning{background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border)}
+.b-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.b-info{background:var(--primary-light);color:var(--primary);border:1px solid #BAD8FF}
+.b-gray{background:#F3F4F6;color:var(--text3);border:1px solid var(--border)}
+
+/* ── SEARCH BAR ── */
+.search-bar{
+  display:flex;align-items:center;gap:7px;
+  background:#fff;border:1px solid var(--border);
+  border-radius:4px;padding:7px 11px;width:220px;
+}
+.search-bar:focus-within{border-color:var(--primary)}
+.search-bar input{border:none;background:transparent;font-family:'Poppins',sans-serif;font-size:12.5px;color:var(--text);outline:none;width:100%}
+.search-bar input::placeholder{color:var(--text4)}
+.search-bar i{color:var(--text4);font-size:16px;flex-shrink:0}
+
+/* ── FORM ── */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.form-label span{color:var(--danger)}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:8px 11px;border:1px solid var(--border);
+  border-radius:4px;font-family:'Poppins',sans-serif;
+  font-size:13px;color:var(--text);background:#fff;
+  outline:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:var(--primary);box-shadow:0 0 0 2px rgba(79,70,229,.08);
+}
+.form-input::placeholder{color:var(--text4)}
+.form-textarea{resize:vertical;min-height:68px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-row4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+
+/* ── PAGES ── */
+.page{display:none}
+.page.active{display:block}
+
+/* ── AVATAR ── */
+.pt-av{
+  width:34px;height:34px;border-radius:50%;background:var(--primary-light);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--primary);flex-shrink:0;
+}
+
+/* ── MINI CHART BARS ── */
+.mini-bars{display:flex;align-items:flex-end;gap:5px;height:50px}
+.mbar{flex:1;border-radius:4px 4px 0 0;background:var(--primary-light);min-height:4px}
+
+.bar-labels{display:flex;gap:5px;margin-top:5px}
+.bar-label{flex:1;text-align:center;font-size:10px;color:var(--text4)}
+
+/* ── MODALS ── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,22,48,.55);z-index:300;
+  align-items:center;justify-content:center;
+}
+.overlay.open{display:flex}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.modal{
+  background:#fff;border-radius:6px;
+  width:600px;max-width:calc(100vw - 40px);max-height:90vh;overflow-y:auto;
+  box-shadow:0 8px 32px rgba(0,0,0,.18);animation:slideUp .18s ease;
+  border:1px solid var(--border);
+}
+.modal-lg{width:720px}
+.modal-sm{width:460px}
+.modal-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  position:sticky;top:0;background:#fff;z-index:10;
+  border-radius:6px 6px 0 0;
+}
+.modal-head-icon{
+  width:32px;height:32px;background:var(--primary-light);border-radius:4px;
+  display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:16px;
+}
+.modal-head h3{font-size:14px;font-weight:600;color:var(--text)}
+.modal-head p{font-size:11px;color:var(--text3);margin-top:1px}
+.modal-close{
+  width:28px;height:28px;border:1px solid var(--border);border-radius:4px;
+  background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text3);font-size:15px;
+}
+
+.modal-body{padding:20px}
+.modal-foot{
+  display:flex;justify-content:flex-end;gap:8px;
+  padding:12px 20px 18px;border-top:1px solid var(--border);
+}
+
+/* Modal section */
+.ms{background:var(--bg);border-radius:var(--r-sm);padding:16px;margin-bottom:12px}
+.ms-label{font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;display:flex;align-items:center;gap:5px}
+
+/* ── AVATAR UPLOAD RING ── */
+.av-ring{
+  width:72px;height:72px;border-radius:50%;background:var(--primary-light);
+  border:3px dashed var(--primary-mid);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;color:var(--primary);
+  font-size:22px;margin:0 auto 18px;position:relative;overflow:hidden;
+}
+
+.av-ring input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.av-ring span{font-size:9.5px;color:var(--primary);font-weight:600;margin-top:2px}
+#avatar-preview{width:100%;height:100%;object-fit:cover;display:none;position:absolute;top:0;left:0}
+
+/* ── REPORT PRINT MODAL ── */
+.rpt-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
+.rpt-modal.open{display:flex}
+.rpt-paper{background:#fff;width:760px;max-width:95vw;max-height:94vh;border-radius:var(--r);overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.rpt-actions{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--bg);border-radius:var(--r) var(--r) 0 0;position:sticky;top:0;z-index:10}
+#rpt-body{padding:34px 40px;font-family:'Poppins',sans-serif}
+.rpt-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:18px;border-bottom:3px solid var(--primary)}
+.rpt-logo-box{width:52px;height:52px;background:var(--primary);border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;overflow:hidden;flex-shrink:0}
+.rpt-logo-box img{width:100%;height:100%;object-fit:cover}
+.rpt-center-name{font-size:19px;font-weight:700;color:var(--primary);line-height:1.2}
+.rpt-center-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.rpt-meta{text-align:right}
+.rpt-id{font-size:16px;font-weight:700;color:var(--text)}
+.rpt-date{font-size:11px;color:var(--text3);margin-top:3px}
+.rpt-badge{display:inline-block;margin-top:7px;background:var(--primary);color:#fff;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.rpt-patient-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;border:1px solid var(--border);border-radius:4px;padding:14px 16px}
+.rfl{font-size:9.5px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.rfv{font-size:13px;font-weight:600;color:var(--text)}
+.rfs{font-size:11px;color:var(--text3);margin-top:2px}
+.rpt-sec-title{font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;margin-top:20px;padding-bottom:5px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;gap:5px}
+.rpt-table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.rpt-table th{background:var(--primary);color:#fff;padding:8px 13px;font-size:11px;font-weight:600;text-align:left}
+.rpt-table th:last-child{text-align:center}
+.rpt-table td{padding:9px 13px;border-bottom:1px solid var(--border2);font-size:12.5px}
+.rpt-table td:last-child{text-align:center}
+.rpt-table tr:last-child td{border-bottom:none}
+.rpt-table tr.abnormal td{background:#FFF7F7}
+.s-normal{color:var(--success);font-weight:700}
+.s-high{color:var(--danger);font-weight:700}
+.s-low{color:var(--warning);font-weight:700}
+.rpt-vitals{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px}
+.vital-card{background:#fff;border-radius:4px;padding:10px 12px;border:1px solid var(--border2)}
+.vital-lbl{font-size:9.5px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:3px}
+.vital-val{font-size:16px;font-weight:700;color:var(--text)}
+.vital-unit{font-size:10px;color:var(--text3);margin-top:1px}
+.rpt-remarks{background:#FFFBEB;border-left:3px solid var(--warning);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:11px 15px;margin-top:5px;font-size:12px;color:var(--text);line-height:1.6}
+.rpt-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:26px;padding-top:16px;padding-bottom:20px;border-top:1px solid var(--border)}
+.rpt-footer-note{font-size:10.5px;color:var(--text3);max-width:290px;line-height:1.65}
+.rpt-sig-box{text-align:right}
+.rpt-sig-line{width:155px;border-bottom:1.5px solid var(--text);margin-bottom:4px}
+.rpt-sig-name{font-size:12px;font-weight:700;color:var(--text)}
+.rpt-sig-title{font-size:10.5px;color:var(--text3)}
+.rpt-barcode{font-family:'Poppins',monospace;font-size:10px;letter-spacing:.15em;color:var(--text3);margin-top:4px}
+
+/* ── SETTINGS ── */
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border2)}
+.settings-item:last-child{border-bottom:none}
+.settings-item h4{font-size:13px;font-weight:600;color:var(--text)}
+.settings-item p{font-size:11.5px;color:var(--text3);margin-top:2px}
+.toggle{width:42px;height:22px;background:var(--border);border-radius:11px;cursor:pointer;position:relative;transition:background .18s}
+.toggle.on{background:var(--primary)}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:23px}
+
+/* ── LOGO UPLOAD ── */
+.logo-upload{border:2px dashed var(--primary-mid);border-radius:var(--r-sm);padding:22px;text-align:center;background:var(--primary-light);cursor:pointer;position:relative}
+
+.logo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.logo-preview-wrap{display:flex;align-items:center;gap:14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 14px;margin-top:12px}
+.logo-preview-box{width:52px;height:52px;border-radius:9px;object-fit:cover;border:1.5px solid var(--border)}
+.logo-preview-ph{width:52px;height:52px;border-radius:9px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;flex-shrink:0}
+
+/* ── BILLING ── */
+.bill-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border2);font-size:13px}
+.bill-row:last-child{border-bottom:none}
+.bill-total{background:var(--primary);color:#fff;border-radius:var(--r-sm);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700;margin-top:8px}
+
+/* ── TESTS PAGE ── */
+.test-cat-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;
+  border:1.5px solid var(--border);background:#fff;cursor:pointer;
+}
+
+.test-cat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+
+/* ── RESULT ENTRY ── */
+.result-row{display:grid;grid-template-columns:2fr 1.2fr 1.2fr 80px;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border2);font-size:13px}
+
+.result-status{font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;text-align:center}
+.rs-normal{background:var(--success-bg);color:var(--success)}
+.rs-high{background:var(--danger-bg);color:var(--danger)}
+.rs-low{background:var(--warning-bg);color:var(--warning)}
+
+/* ── ANALYTICS ── */
+.ana-bar{
+  display:flex;align-items:flex-end;gap:9px;height:120px;
+}
+.ana-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+.ana-bar-fill{width:100%;background:var(--primary-light);border-radius:5px 5px 0 0;transition:all .3s;cursor:pointer;min-height:4px}
+.ana-bar-fill:hover,.ana-bar-fill.hi{background:var(--primary)}
+.ana-bar-label{font-size:10px;color:var(--text4);font-weight:500}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px}
+.tab{
+  padding:9px 16px;font-size:12.5px;font-weight:500;color:var(--text3);
+  cursor:pointer;position:relative;border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+
+/* ── STATUS PILL ── */
+.status-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px}
+.sp-done{background:var(--success-bg);color:var(--success)}
+.sp-pending{background:var(--warning-bg);color:var(--warning)}
+.sp-review{background:var(--danger-bg);color:var(--danger)}
+.sp-draft{background:#F3F4F6;color:var(--text3)}
+
+/* ── QUICK ACTION CARDS ── */
+.qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.qa-card{
+  background:#fff;border:1px solid var(--border);border-radius:6px;
+  padding:14px;cursor:pointer;transition:border-color .15s;text-align:center;
+}
+
+.qa-icon{width:38px;height:38px;border-radius:4px;background:var(--primary-light);color:var(--primary);font-size:19px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+.qa-card.green .qa-icon{background:var(--success-bg);color:var(--success)}
+.qa-card.orange .qa-icon{background:var(--warning-bg);color:var(--warning)}
+.qa-card.cyan .qa-icon{background:#ECFEFF;color:var(--accent2)}
+.qa-label{font-size:12.5px;font-weight:600;color:var(--text)}
+.qa-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── DOCTOR CARDS ── */
+.doc-card{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:4px;border:1px solid var(--border);
+  margin-bottom:6px;cursor:default;
+}
+
+.doc-av{width:36px;height:36px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.doc-name{font-size:13px;font-weight:600;color:var(--text)}
+.doc-spec{font-size:11.5px;color:var(--text3)}
+.doc-count{margin-left:auto;font-size:20px;font-weight:700;color:var(--primary)}
+
+/* ── NOTIFICATION CHIP ── */
+.notif-chip{
+  position:relative;width:32px;height:32px;border:1px solid var(--border);
+  border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text3);font-size:17px;
+}
+
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--danger);border:2px solid #fff}
+
+/* ── TIMELINE ── */
+.timeline-item{display:flex;gap:12px;padding-bottom:14px;position:relative}
+.timeline-item::before{content:'';position:absolute;left:15px;top:28px;bottom:0;width:1px;background:var(--border2)}
+.timeline-item:last-child::before{display:none}
+.tl-dot{width:32px;height:32px;border-radius:50%;background:var(--primary-light);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--primary);flex-shrink:0;margin-top:2px}
+.tl-content{flex:1}
+.tl-title{font-size:13px;font-weight:600;color:var(--text)}
+.tl-sub{font-size:11.5px;color:var(--text3);margin-top:2px}
+.tl-time{font-size:10.5px;color:var(--text4);margin-top:3px}
+
+/* ── INCOME CHART (full width bars) ── */
+.income-row{display:flex;align-items:center;gap:12px;margin-bottom:9px}
+.income-label{font-size:12px;color:var(--text3);width:32px}
+.income-bar-wrap{flex:1;background:var(--bg2);border-radius:4px;height:10px;overflow:hidden}
+.income-bar-fill{height:100%;border-radius:4px;background:var(--primary);transition:width .4s ease}
+.income-val{font-size:12px;font-weight:600;color:var(--text);width:55px;text-align:right}
+
+/* ── HEADER ACTION BUTTONS ── */
+.hdr-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 12px;border-radius:4px;
+  font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;
+  cursor:pointer;border:1px solid var(--border);line-height:1;
+  background:#fff;color:var(--text2);
+}
+.hdr-btn-blue{background:var(--primary-light);color:var(--primary);border-color:transparent;}
+
+.hdr-btn-orange{background:var(--warning-bg);color:var(--warning);border-color:transparent;}
+
+.hdr-btn-cyan{background:#ECFEFF;color:var(--accent2);border-color:transparent;}
+
+.hdr-btn-primary{background:var(--primary);color:#fff;border-color:transparent;}
+
+
+
+/* ── PRINT: handled entirely by printReport() popup window ── */
+@media print{*{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon" id="sb-logo-icon"><i class="ti ti-dna-2"></i></div>
+    <div>
+      <div class="sb-logo-text" id="sb-center-name">Advanced Diagnostics</div>
+      <div class="sb-logo-sub">Lab Management System</div>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-section-label">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="ti ti-chart-pie-2"></i> Dashboard</div>
+    <div class="nav-item" onclick="showPage('patients',this)"><i class="ti ti-users-group"></i> Patients<span class="nav-badge" id="nb-pts">5</span></div>
+
+    <div class="nav-section-label">Lab Modules</div>
+    <div class="nav-item" onclick="showPage('tests',this)"><i class="ti ti-test-pipe-2"></i> Test Management</div>
+    <div class="nav-item" onclick="showPage('reports',this)"><i class="ti ti-file-analytics"></i> Report Entry<span class="nav-badge orange" id="nb-pending">7</span></div>
+    <div class="nav-item" onclick="showPage('billing',this)"><i class="ti ti-receipt-2"></i> Billing</div>
+
+    <div class="nav-section-label">Analytics</div>
+    <div class="nav-item" onclick="showPage('analytics',this)"><i class="ti ti-presentation-analytics"></i> Reports & Analytics</div>
+
+    <div class="nav-section-label">System</div>
+    <div class="nav-item" onclick="showPage('settings',this)"><i class="ti ti-settings-2"></i> Settings</div>
+  </nav>
+
+  <div class="sb-footer">
+    <div class="user-card">
+      <div class="user-av">AD</div>
+      <div>
+        <div class="user-name">Dr. Admin</div>
+        <div class="user-role">Administrator</div>
+      </div>
+      <i class="ti ti-chevron-up" style="margin-left:auto;font-size:14px;color:var(--text4)"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main class="main">
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="page-dashboard" class="page active">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub">Wednesday, 20 May 2026</div>
+    </div>
+    <div class="topbar-right">
+      <button class="hdr-btn hdr-btn-blue" onclick="showPage('reports',document.querySelector('[onclick*=reports]'))"><i class="ti ti-file-plus"></i> Enter Results</button>
+      <button class="hdr-btn hdr-btn-orange" onclick="showPage('billing',document.querySelector('[onclick*=billing]'))"><i class="ti ti-receipt"></i> Generate Bill</button>
+      <button class="hdr-btn hdr-btn-cyan" onclick="openReport()"><i class="ti ti-printer"></i> Print Report</button>
+      <button class="hdr-btn hdr-btn-primary" onclick="openAddPatient()"><i class="ti ti-user-plus"></i> New Patient</button>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-l">
+        <div class="hero-greeting">Good Morning, Dr. Admin 👋</div>
+        <div class="hero-title">Welcome to <span>Advanced Diagnostics</span><br>Lab Management System</div>
+        <div class="hero-sub">Your complete pathology lab hub — manage patients, tests, billing and reports all in one place, fully offline.</div>
+      </div>
+      <div class="hero-r">
+        <div class="hero-stat">
+          <div class="hero-stat-n" id="hero-today-pts">5</div>
+          <div class="hero-stat-l">Today's Patients</div>
+          <div class="hero-dot"></div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n">38</div>
+          <div class="hero-stat-l">Today's Tests</div>
+          <div class="hero-dot"></div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-n">7</div>
+          <div class="hero-stat-l">Pending Reports</div>
+          <div class="hero-dot" style="background:#FCA5A5"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-grid g4" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-users"></i></div><div class="stat-label">Total Patients</div><div class="stat-value" id="db-total-pt">5</div><div class="stat-change"><i class="ti ti-trending-up"></i> +12 this week</div></div>
+      <div class="stat-card green"><div class="stat-icon si-green"><i class="ti ti-file-check"></i></div><div class="stat-label">Tests Today</div><div class="stat-value">38</div><div class="stat-change"><i class="ti ti-trending-up"></i> 96% complete</div></div>
+      <div class="stat-card orange"><div class="stat-icon si-orange"><i class="ti ti-clock"></i></div><div class="stat-label">Pending Reports</div><div class="stat-value">7</div><div class="stat-change down"><i class="ti ti-trending-down"></i> 3 urgent</div></div>
+      <div class="stat-card cyan"><div class="stat-icon si-cyan"><i class="ti ti-currency-rupee"></i></div><div class="stat-label">Today's Income</div><div class="stat-value">₹14.2K</div><div class="stat-change"><i class="ti ti-trending-up"></i> +18% vs yesterday</div></div>
+    </div>
+
+    <!-- Chart + Recent Activity -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-chart-bar" style="color:var(--primary)"></i> Weekly Test Volume</div>
+          <span class="badge b-info">This Week</span>
+        </div>
+        <div class="ana-bar">
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:55%"></div><div class="ana-bar-label">Mon</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:72%"></div><div class="ana-bar-label">Tue</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:48%"></div><div class="ana-bar-label">Wed</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:88%"></div><div class="ana-bar-label">Thu</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:62%"></div><div class="ana-bar-label">Fri</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill hi" style="height:95%"></div><div class="ana-bar-label">Sat</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:30%"></div><div class="ana-bar-label">Sun</div></div>
+        </div>
+        <div style="display:flex;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border2)">
+          <div style="font-size:12px;color:var(--text3)"><span style="font-weight:700;font-size:18px;color:var(--text)">284</span> tests this week</div>
+          <div style="font-size:12px;color:var(--text3)"><span style="font-weight:700;font-size:18px;color:var(--success)">96%</span> completion rate</div>
+          <div style="font-size:12px;color:var(--text3)"><span style="font-weight:700;font-size:18px;color:var(--primary)">₹89K</span> weekly revenue</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" style="margin-bottom:14px">
+          <div class="card-title"><i class="ti ti-activity" style="color:var(--primary)"></i> Recent Activity</div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-dot"><i class="ti ti-user-plus"></i></div>
+          <div class="tl-content"><div class="tl-title">Priya Sharma registered</div><div class="tl-sub">CBC + Lipid Profile ordered</div><div class="tl-time">10:45 AM</div></div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-dot" style="background:var(--success-bg);border-color:var(--success);color:var(--success)"><i class="ti ti-file-check"></i></div>
+          <div class="tl-content"><div class="tl-title">Report #RPT-0238 ready</div><div class="tl-sub">Blood Work — Ramesh Kumar</div><div class="tl-time">10:20 AM</div></div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-dot" style="background:var(--warning-bg);border-color:var(--warning);color:var(--warning)"><i class="ti ti-receipt"></i></div>
+          <div class="tl-content"><div class="tl-title">Invoice #INV-0142 paid</div><div class="tl-sub">₹1,850 — Cash — Sunita Devi</div><div class="tl-time">9:55 AM</div></div>
+        </div>
+        <div class="timeline-item">
+          <div class="tl-dot" style="background:var(--danger-bg);border-color:var(--danger);color:var(--danger)"><i class="ti ti-alert-triangle"></i></div>
+          <div class="tl-content"><div class="tl-title">Abnormal result flagged</div><div class="tl-sub">High Blood Sugar — Anil Patel</div><div class="tl-time">9:30 AM</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patients Table + Doctors -->
+    <div style="display:grid;grid-template-columns:1fr;gap:18px">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="ti ti-users" style="color:var(--primary)"></i> Recent Patients</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="search-bar" style="width:185px"><i class="ti ti-search"></i><input type="text" placeholder="Search..." oninput="filterPatients(this.value)"></div>
+            <button class="btn btn-outline btn-sm" onclick="openAddPatient()"><i class="ti ti-plus"></i> Add</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Patient</th><th>ID</th><th>Age/Gender</th><th>Blood</th><th>Last Visit</th><th>Actions</th></tr></thead>
+            <tbody id="db-patient-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════ PATIENTS ══════════ -->
+<div id="page-patients" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Patient Registration</div><div class="page-sub">Manage all patient records</div></div>
+    <div class="topbar-right">
+      <div class="search-bar"><i class="ti ti-search"></i><input type="text" placeholder="Search patients..." oninput="filterPatients(this.value)"></div>
+      <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>
+      <button class="btn btn-primary" onclick="openAddPatient()"><i class="ti ti-user-plus"></i> New Patient</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats-grid g3" style="margin-bottom:18px">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-users"></i></div><div class="stat-label">Total Patients</div><div class="stat-value" id="pt-total-v">5</div></div>
+      <div class="stat-card green"><div class="stat-icon si-green"><i class="ti ti-user-check"></i></div><div class="stat-label">Active This Month</div><div class="stat-value">84</div></div>
+      <div class="stat-card orange"><div class="stat-icon si-orange"><i class="ti ti-user-plus"></i></div><div class="stat-label">New This Week</div><div class="stat-value">12</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Patients</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm"><i class="ti ti-filter"></i> Filter</button>
+          <button class="btn btn-ghost btn-sm"><i class="ti ti-sort-ascending"></i> Sort</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Patient</th><th>Patient ID</th><th>Age / Gender</th><th>Phone</th><th>Blood Group</th><th>Reg. Date</th><th>Reports</th><th>Actions</th></tr></thead>
+          <tbody id="pt-page-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TEST MANAGEMENT ══════════ -->
+<div id="page-tests" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Test Management</div><div class="page-sub">Manage pathology tests, categories and pricing</div></div>
+    <div class="topbar-right">
+      <div class="search-bar"><i class="ti ti-search"></i><input type="text" placeholder="Search tests..." oninput="filterTests(this.value)"></div>
+      <button class="btn btn-outline btn-sm"><i class="ti ti-plus"></i> New Category</button>
+      <button class="btn btn-primary" onclick="openAddTest()"><i class="ti ti-flask"></i> Add Test</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats-grid g4" style="margin-bottom:18px">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-flask"></i></div><div class="stat-label">Total Tests</div><div class="stat-value">142</div></div>
+      <div class="stat-card green"><div class="stat-icon si-green"><i class="ti ti-list-check"></i></div><div class="stat-label">Categories</div><div class="stat-value">19</div></div>
+      <div class="stat-card orange"><div class="stat-icon si-orange"><i class="ti ti-star"></i></div><div class="stat-label">Test Profiles</div><div class="stat-value">12</div></div>
+      <div class="stat-card cyan"><div class="stat-icon si-cyan"><i class="ti ti-currency-rupee"></i></div><div class="stat-label">Avg Test Price</div><div class="stat-value">₹485</div></div>
+    </div>
+    <div class="card" style="margin-bottom:16px">
+      <div style="margin-bottom:12px;font-size:12px;font-weight:600;color:var(--text3)">Filter by Category</div>
+      <div class="test-cat-row">
+        <div class="test-cat-pill active" onclick="filterTests('')">All Tests</div>
+        <div class="test-cat-pill" onclick="filterTestCat('CBC')"><i class="ti ti-droplet"></i> CBC</div>
+        <div class="test-cat-pill" onclick="filterTestCat('CRP')">CRP</div>
+        <div class="test-cat-pill" onclick="filterTestCat('MP')">MP</div>
+        <div class="test-cat-pill" onclick="filterTestCat('WIDAL')">WIDAL</div>
+        <div class="test-cat-pill" onclick="filterTestCat('CUE')">CUE</div>
+        <div class="test-cat-pill" onclick="filterTestCat('DENGUE')">DENGUE</div>
+        <div class="test-cat-pill" onclick="filterTestCat('RFT')">RFT</div>
+        <div class="test-cat-pill" onclick="filterTestCat('LFT')"><i class="ti ti-flask"></i> LFT</div>
+        <div class="test-cat-pill" onclick="filterTestCat('LIPIDS')">LIPIDS</div>
+        <div class="test-cat-pill" onclick="filterTestCat('ESR')">ESR</div>
+        <div class="test-cat-pill" onclick="filterTestCat('HBA1C')">HBA1C</div>
+        <div class="test-cat-pill" onclick="filterTestCat('FBS')">FBS</div>
+        <div class="test-cat-pill" onclick="filterTestCat('PLBS')">PLBS</div>
+        <div class="test-cat-pill" onclick="filterTestCat('CREATININE')">CREATININE</div>
+        <div class="test-cat-pill" onclick="filterTestCat('SERUM ELECTROLYTES')">SERUM ELECTROLYTES</div>
+        <div class="test-cat-pill" onclick="filterTestCat('TFT')">TFT</div>
+        <div class="test-cat-pill" onclick="filterTestCat('IRON PROFILE')">IRON PROFILE</div>
+        <div class="test-cat-pill" onclick="filterTestCat('VIT D')">VIT D</div>
+        <div class="test-cat-pill" onclick="filterTestCat('VIT B12')">VIT B12</div>
+        <div class="test-cat-pill" onclick="filterTestCat('EGFR')">EGFR</div>
+        <div class="test-cat-pill" onclick="filterTestCat('HOMOCYSTINE')">HOMOCYSTINE</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Blood Sugar')"><i class="ti ti-activity"></i> Blood Sugar</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Thyroid')"><i class="ti ti-dna"></i> Thyroid</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Urine')"><i class="ti ti-test-pipe"></i> Urine</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Hormones')">Hormones</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Cardiac')">Cardiac</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Tumor')">Tumor Markers</div>
+        <div class="test-cat-pill" onclick="filterTestCat('Infectious')">Infectious</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Test Master List</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Test Name</th><th>Category</th><th>Method</th><th>Unit</th><th>Ref. Range (Male)</th><th>Ref. Range (Female)</th><th>Sample</th><th>Price</th><th>Action</th></tr></thead>
+          <tbody id="tests-tbody">
+            <tr><td><strong>Haemoglobin</strong></td><td><span class="badge b-info">CBC</span></td><td>Cyanmethemoglobin</td><td>g/dL</td><td>13.0 – 17.0</td><td>11.5 – 15.5</td><td>EDTA Blood</td><td>₹80</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>WBC Count</strong></td><td><span class="badge b-info">CBC</span></td><td>Automated Counter</td><td>cells/μL</td><td>4,000 – 11,000</td><td>4,000 – 11,000</td><td>EDTA Blood</td><td>₹80</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>Platelet Count</strong></td><td><span class="badge b-info">CBC</span></td><td>Automated Counter</td><td>cells/μL</td><td>1.5L – 4.5L</td><td>1.5L – 4.5L</td><td>EDTA Blood</td><td>₹80</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>Blood Sugar Fasting</strong></td><td><span class="badge b-success">Blood Sugar</span></td><td>GOD-POD</td><td>mg/dL</td><td>70 – 99</td><td>70 – 99</td><td>Serum</td><td>₹60</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>HbA1c</strong></td><td><span class="badge b-success">Blood Sugar</span></td><td>HPLC</td><td>%</td><td>&lt; 5.7</td><td>&lt; 5.7</td><td>EDTA Blood</td><td>₹450</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>Total Cholesterol</strong></td><td><span class="badge b-warning">Lipid</span></td><td>CHOD-POD</td><td>mg/dL</td><td>&lt; 200</td><td>&lt; 200</td><td>Serum</td><td>₹120</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>TSH</strong></td><td><span class="badge b-gray">Thyroid</span></td><td>CLIA</td><td>μIU/mL</td><td>0.4 – 4.0</td><td>0.4 – 4.0</td><td>Serum</td><td>₹380</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>SGOT / AST</strong></td><td><span class="badge b-danger">LFT</span></td><td>IFCC</td><td>U/L</td><td>10 – 40</td><td>10 – 35</td><td>Serum</td><td>₹150</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>Serum Creatinine</strong></td><td><span class="badge b-info">KFT</span></td><td>Jaffe's Method</td><td>mg/dL</td><td>0.7 – 1.2</td><td>0.5 – 1.0</td><td>Serum</td><td>₹120</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+            <tr><td><strong>Urine Routine</strong></td><td><span class="badge b-gray">Urine</span></td><td>Dipstick + Microscopy</td><td>—</td><td>See report</td><td>See report</td><td>Mid-stream Urine</td><td>₹80</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-trash"></i></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ REPORT ENTRY ══════════ -->
+<div id="page-reports" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Report Entry</div><div class="page-sub">Enter and manage test results</div></div>
+    <div class="topbar-right">
+      <div class="search-bar"><i class="ti ti-search"></i><input type="text" placeholder="Search by patient / report ID..."></div>
+      <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export</button>
+      <button class="btn btn-primary" onclick="openCreateReportModal()"><i class="ti ti-file-plus"></i> Create Report</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats-grid g4" style="margin-bottom:18px">
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-report-medical"></i></div><div class="stat-label">Total Reports</div><div class="stat-value">1,284</div></div>
+      <div class="stat-card green"><div class="stat-icon si-green"><i class="ti ti-file-check"></i></div><div class="stat-label">Completed</div><div class="stat-value">1,272</div></div>
+      <div class="stat-card orange"><div class="stat-icon si-orange"><i class="ti ti-clock"></i></div><div class="stat-label">Pending Review</div><div class="stat-value">7</div></div>
+      <div class="stat-card red"><div class="stat-icon si-red"><i class="ti ti-alert-triangle"></i></div><div class="stat-label">Abnormal Results</div><div class="stat-value">5</div></div>
+    </div>
+
+    <!-- Tabs: All Reports | Pending -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'rpt-tab-all')">All Reports</div>
+      <div class="tab" onclick="switchTab(this,'rpt-tab-pending')">Pending Reports <span class="badge b-warning" style="margin-left:5px">7</span></div>
+    </div>
+
+    <!-- Pending Tab -->
+    <div id="rpt-tab-pending" style="display:none">
+      <div class="card">
+        <table>
+          <thead><tr><th>Report No.</th><th>Patient</th><th>Tests</th><th>Ref Doctor</th><th>Sample Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--primary)">#RPT-0239</strong></td><td>Anil Patel</td><td>CBC, LFT, KFT</td><td>Dr. Ramesh</td><td>20 May 2026</td><td><span class="status-pill sp-pending"><i class="ti ti-clock" style="font-size:11px"></i> Pending</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-primary btn-sm" onclick="switchTabById('rpt-tab-entry')"><i class="ti ti-pencil"></i> Enter</button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+            <tr><td><strong style="color:var(--primary)">#RPT-0240</strong></td><td>Meena Joshi</td><td>Thyroid Profile</td><td>Dr. Anita</td><td>20 May 2026</td><td><span class="status-pill sp-pending"><i class="ti ti-clock" style="font-size:11px"></i> Pending</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-primary btn-sm" onclick="switchTabById('rpt-tab-entry')"><i class="ti ti-pencil"></i> Enter</button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+            <tr><td><strong style="color:var(--primary)">#RPT-0241</strong></td><td>Sunita Devi</td><td>Lipid Profile</td><td>Dr. Priya</td><td>19 May 2026</td><td><span class="status-pill sp-review"><i class="ti ti-alert-triangle" style="font-size:11px"></i> Review</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-primary btn-sm" onclick="switchTabById('rpt-tab-entry')"><i class="ti ti-pencil"></i> Enter</button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All Reports Tab -->
+    <div id="rpt-tab-all">
+      <div class="card" style="margin-bottom:14px;padding:12px 16px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:7px"><label style="font-size:12px;font-weight:600;color:var(--text3)">From</label><input type="date" class="form-input" value="2026-05-01" style="width:148px;padding:7px 10px;font-size:12.5px"></div>
+          <div style="display:flex;align-items:center;gap:7px"><label style="font-size:12px;font-weight:600;color:var(--text3)">To</label><input type="date" class="form-input" value="2026-05-20" style="width:148px;padding:7px 10px;font-size:12.5px"></div>
+          <select class="form-select" style="width:145px;padding:7px 10px;font-size:12.5px"><option>All Status</option><option>Completed</option><option>Pending</option><option>Review</option></select>
+          <button class="btn btn-primary btn-sm">Apply</button>
+          <button class="btn btn-ghost btn-sm">Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Report History</div><span style="font-size:12px;color:var(--text3)">284 records</span></div>
+        <table>
+          <thead><tr><th>Report No.</th><th>Patient</th><th>Date</th><th>Doctor</th><th>Test Type</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--primary)">#RPT-0238</strong></td><td>Priya Sharma</td><td>19 May 2026</td><td>Dr. Ramesh</td><td>Blood Work (CBC)</td><td><span class="status-pill sp-done">Completed</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-printer"></i></button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+            <tr><td><strong style="color:var(--primary)">#RPT-0237</strong></td><td>Ramesh Kumar</td><td>19 May 2026</td><td>Dr. Priya</td><td>X-Ray</td><td><span class="status-pill sp-pending">Pending</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-printer"></i></button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+            <tr><td><strong style="color:var(--primary)">#RPT-0236</strong></td><td>Sunita Devi</td><td>18 May 2026</td><td>Dr. Ramesh</td><td>Lipid Profile</td><td><span class="status-pill sp-done">Completed</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-printer"></i></button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+            <tr><td><strong style="color:var(--primary)">#RPT-0235</strong></td><td>Anil Patel</td><td>18 May 2026</td><td>Dr. Suresh</td><td>ECG</td><td><span class="status-pill sp-review">Review</span></td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-printer"></i></button><button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- ══════════ BILLING ══════════ -->
+<div id="page-billing" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Billing</div><div class="page-sub">Invoices, payments and receipts</div></div>
+    <div class="topbar-right">
+      <div class="search-bar"><i class="ti ti-search"></i><input type="text" placeholder="Search invoices..."></div>
+      <button class="btn btn-outline btn-sm"><i class="ti ti-filter"></i> Filter</button>
+      <button class="btn btn-primary" onclick="openBilling()"><i class="ti ti-plus"></i> New Invoice</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats-grid g4" style="margin-bottom:18px">
+      <div class="stat-card cyan"><div class="stat-icon si-cyan"><i class="ti ti-currency-rupee"></i></div><div class="stat-label">Today's Revenue</div><div class="stat-value">₹14,200</div><div class="stat-change"><i class="ti ti-trending-up"></i> +18%</div></div>
+      <div class="stat-card green"><div class="stat-icon si-green"><i class="ti ti-check"></i></div><div class="stat-label">Monthly Revenue</div><div class="stat-value">₹2.8L</div><div class="stat-change"><i class="ti ti-trending-up"></i> +12%</div></div>
+      <div class="stat-card orange"><div class="stat-icon si-orange"><i class="ti ti-clock"></i></div><div class="stat-label">Pending Payments</div><div class="stat-value">₹3,450</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-receipt"></i></div><div class="stat-label">Invoices Today</div><div class="stat-value">18</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Invoices</div><button class="btn btn-outline btn-sm" onclick="openBilling()"><i class="ti ti-plus"></i> New</button></div>
+        <table>
+          <thead><tr><th>Invoice No.</th><th>Patient</th><th>Date</th><th>Amount</th><th>Mode</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--primary)">#INV-0145</strong></td><td>Priya Sharma</td><td>20 May 2026</td><td><strong>₹1,850</strong></td><td><span class="badge b-info">UPI</span></td><td><span class="status-pill sp-done">Paid</span></td><td><button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-printer"></i></button></td></tr>
+            <tr><td><strong style="color:var(--primary)">#INV-0144</strong></td><td>Ramesh Kumar</td><td>19 May 2026</td><td><strong>₹3,200</strong></td><td><span class="badge b-success">Cash</span></td><td><span class="status-pill sp-done">Paid</span></td><td><button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-printer"></i></button></td></tr>
+            <tr><td><strong style="color:var(--primary)">#INV-0143</strong></td><td>Anil Patel</td><td>18 May 2026</td><td><strong>₹2,600</strong></td><td><span class="badge b-gray">Card</span></td><td><span class="status-pill sp-pending">Pending</span></td><td><button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-printer"></i></button></td></tr>
+            <tr><td><strong style="color:var(--primary)">#INV-0142</strong></td><td>Sunita Devi</td><td>18 May 2026</td><td><strong>₹980</strong></td><td><span class="badge b-info">UPI</span></td><td><span class="status-pill sp-done">Paid</span></td><td><button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-printer"></i></button></td></tr>
+            <tr><td><strong style="color:var(--primary)">#INV-0141</strong></td><td>Meena Joshi</td><td>17 May 2026</td><td><strong>₹1,450</strong></td><td><span class="badge b-success">Cash</span></td><td><span class="status-pill sp-done">Paid</span></td><td><button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-printer"></i></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Payment Mode Breakdown -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px"><i class="ti ti-chart-pie" style="color:var(--primary)"></i> Payment Modes Today</div>
+          <div class="income-row"><div class="income-label">Cash</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:62%"></div></div><div class="income-val">₹8,800</div></div>
+          <div class="income-row"><div class="income-label">UPI</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:28%;background:#06B6D4"></div></div><div class="income-val">₹3,950</div></div>
+          <div class="income-row"><div class="income-label">Card</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:10%;background:#a78bfa"></div></div><div class="income-val">₹1,450</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px"><i class="ti ti-chart-line" style="color:var(--primary)"></i> Monthly Revenue</div>
+          <div class="income-row"><div class="income-label">Jan</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:55%"></div></div><div class="income-val">₹2.1L</div></div>
+          <div class="income-row"><div class="income-label">Feb</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:60%"></div></div><div class="income-val">₹2.3L</div></div>
+          <div class="income-row"><div class="income-label">Mar</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:72%"></div></div><div class="income-val">₹2.7L</div></div>
+          <div class="income-row"><div class="income-label">Apr</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:68%"></div></div><div class="income-val">₹2.5L</div></div>
+          <div class="income-row"><div class="income-label">May</div><div class="income-bar-wrap"><div class="income-bar-fill hi" style="width:75%"></div></div><div class="income-val">₹2.8L</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ANALYTICS ══════════ -->
+<div id="page-analytics" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Reports & Analytics</div><div class="page-sub">Data insights and financial reports</div></div>
+    <div class="topbar-right">
+      <select class="form-select" style="width:140px;padding:7px 10px;font-size:12.5px"><option>This Month</option><option>Last Month</option><option>Last 3 Months</option><option>This Year</option></select>
+      <button class="btn btn-ghost btn-sm"><i class="ti ti-download"></i> Export PDF</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats-grid g4" style="margin-bottom:20px">
+      <div class="stat-card cyan"><div class="stat-icon si-cyan"><i class="ti ti-currency-rupee"></i></div><div class="stat-label">Monthly Revenue</div><div class="stat-value">₹2.8L</div><div class="stat-change"><i class="ti ti-trending-up"></i> +12% vs last</div></div>
+      <div class="stat-card green"><div class="stat-icon si-green"><i class="ti ti-flask"></i></div><div class="stat-label">Tests This Month</div><div class="stat-value">1,142</div><div class="stat-change"><i class="ti ti-trending-up"></i> +8%</div></div>
+      <div class="stat-card"><div class="stat-icon si-blue"><i class="ti ti-users"></i></div><div class="stat-label">Patients Served</div><div class="stat-value">284</div><div class="stat-change"><i class="ti ti-trending-up"></i> +14%</div></div>
+      <div class="stat-card orange"><div class="stat-icon si-orange"><i class="ti ti-stethoscope"></i></div><div class="stat-label">Ref. Doctors</div><div class="stat-value">8</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px">
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="ti ti-chart-bar" style="color:var(--primary)"></i> Daily Test Volume — May 2026</div></div>
+        <div class="ana-bar" style="height:140px">
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:48%"></div><div class="ana-bar-label">1</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:55%"></div><div class="ana-bar-label">2</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:60%"></div><div class="ana-bar-label">3</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:35%"></div><div class="ana-bar-label">4</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:70%"></div><div class="ana-bar-label">5</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:88%"></div><div class="ana-bar-label">6</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:40%"></div><div class="ana-bar-label">7</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:62%"></div><div class="ana-bar-label">8</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:75%"></div><div class="ana-bar-label">9</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:58%"></div><div class="ana-bar-label">10</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:80%"></div><div class="ana-bar-label">11</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:65%"></div><div class="ana-bar-label">12</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:70%"></div><div class="ana-bar-label">13</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:45%"></div><div class="ana-bar-label">14</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:90%"></div><div class="ana-bar-label">15</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:55%"></div><div class="ana-bar-label">16</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:68%"></div><div class="ana-bar-label">17</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:72%"></div><div class="ana-bar-label">18</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill" style="height:84%"></div><div class="ana-bar-label">19</div></div>
+          <div class="ana-bar-wrap"><div class="ana-bar-fill hi" style="height:95%"></div><div class="ana-bar-label">20</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px"><i class="ti ti-flask" style="color:var(--primary)"></i> Top Tests This Month</div>
+        <div class="income-row"><div style="font-size:12px;color:var(--text3);width:90px">CBC</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:85%"></div></div><div class="income-val">248 tests</div></div>
+        <div class="income-row"><div style="font-size:12px;color:var(--text3);width:90px">Blood Sugar</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:70%"></div></div><div class="income-val">204 tests</div></div>
+        <div class="income-row"><div style="font-size:12px;color:var(--text3);width:90px">Lipid Profile</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:55%"></div></div><div class="income-val">160 tests</div></div>
+        <div class="income-row"><div style="font-size:12px;color:var(--text3);width:90px">Thyroid</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:48%"></div></div><div class="income-val">140 tests</div></div>
+        <div class="income-row"><div style="font-size:12px;color:var(--text3);width:90px">LFT</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:38%"></div></div><div class="income-val">110 tests</div></div>
+        <div class="income-row"><div style="font-size:12px;color:var(--text3);width:90px">Urine R/E</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:32%"></div></div><div class="income-val">93 tests</div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <!-- Doctor wise -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px"><i class="ti ti-stethoscope" style="color:var(--primary)"></i> Doctor-Wise Report Count</div>
+        <table>
+          <thead><tr><th>Doctor</th><th>Specialty</th><th>Reports</th><th>Revenue</th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="doc-av" style="width:30px;height:30px;font-size:11px">RK</div>Dr. Ramesh</div></td><td>General</td><td><strong>84</strong></td><td>₹1.2L</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="doc-av" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#a78bfa,#7c3aed)">PR</div>Dr. Priya</div></td><td>Cardiology</td><td><strong>62</strong></td><td>₹96K</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="doc-av" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#34d399,#059669)">SS</div>Dr. Suresh</div></td><td>Ortho</td><td><strong>45</strong></td><td>₹68K</td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px"><div class="doc-av" style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,#fb923c,#dc2626)">AN</div>Dr. Anita</div></td><td>Endocrinology</td><td><strong>38</strong></td><td>₹58K</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Monthly income breakdown -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px"><i class="ti ti-chart-area" style="color:var(--primary)"></i> Monthly Income Breakdown</div>
+        <div class="income-row"><div class="income-label">Jan</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:55%"></div></div><div class="income-val">₹2.1L</div></div>
+        <div class="income-row"><div class="income-label">Feb</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:60%"></div></div><div class="income-val">₹2.3L</div></div>
+        <div class="income-row"><div class="income-label">Mar</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:70%"></div></div><div class="income-val">₹2.7L</div></div>
+        <div class="income-row"><div class="income-label">Apr</div><div class="income-bar-wrap"><div class="income-bar-fill" style="width:65%"></div></div><div class="income-val">₹2.5L</div></div>
+        <div class="income-row"><div class="income-label">May</div><div class="income-bar-wrap"><div class="income-bar-fill hi" style="width:75%"></div></div><div class="income-val">₹2.8L</div></div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border2);display:flex;justify-content:space-between">
+          <div style="font-size:12px;color:var(--text3)">Total YTD Revenue</div>
+          <div style="font-size:15px;font-weight:700;color:var(--primary)">₹12.4 Lakhs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SETTINGS ══════════ -->
+<div id="page-settings" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="page-title">Settings</div><div class="page-sub">Configure your diagnostic center</div></div>
+    <div class="topbar-right"><button class="btn btn-primary" onclick="saveSettings()"><i class="ti ti-device-floppy"></i> Save Changes</button></div>
+  </div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:16px"><i class="ti ti-building-hospital" style="color:var(--primary)"></i> Diagnostic Center Info</div>
+        <div class="form-group"><label class="form-label">Center Name</label><input class="form-input" id="set-name" value="Advanced Diagnostics Lab"></div>
+        <div class="form-group"><label class="form-label">Address</label><textarea class="form-textarea" id="set-addr" style="min-height:56px">123 Medical Colony, Bengaluru - 560001</textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="+91 80 1234 5678"></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="info@advanceddiag.in"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Registration No.</label><input class="form-input" value="DX-KA-2024-0091"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px"><i class="ti ti-report-medical" style="color:var(--primary)"></i> Report Configuration</div>
+          <div class="form-group"><label class="form-label">Report ID Prefix</label><input class="form-input" value="RPT-"></div>
+          <div class="form-group"><label class="form-label">Default Doctor</label><select class="form-select"><option>Dr. Ramesh (General)</option><option>Dr. Priya (Cardiology)</option><option>Dr. Suresh (Ortho)</option></select></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Footer Note</label><input class="form-input" value="This report is for diagnostic purposes only. Consult your physician."></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px"><i class="ti ti-adjustments" style="color:var(--primary)"></i> Preferences</div>
+          <div class="settings-item"><div><h4>Auto-print after report creation</h4><p>Open print dialog when a report is saved</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="settings-item"><div><h4>WhatsApp report sharing</h4><p>Share PDF report via WhatsApp</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+          <div class="settings-item"><div><h4>Daily backup reminder</h4><p>Remind to backup database daily</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+          <div class="settings-item"><div><h4>Show reference ranges</h4><p>Display reference ranges on reports</p></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:10px"><i class="ti ti-database" style="color:var(--primary)"></i> Database Backup</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">Last backup: 19 May 2026, 11:30 PM · SQLite local storage</div>
+          <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm"><i class="ti ti-download"></i> Backup Now</button><button class="btn btn-ghost btn-sm"><i class="ti ti-upload"></i> Restore</button><button class="btn btn-ghost btn-sm"><i class="ti ti-table-export"></i> Export Excel</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main><!-- end main -->
+
+<!-- ═══════════════════ ADD PATIENT MODAL ═══════════════════ -->
+<div class="overlay" id="modal-add-patient">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="modal-head-icon"><i class="ti ti-user-plus"></i></div>
+        <div><h3>Register New Patient</h3><p>Fill in patient details to create record</p></div>
+      </div>
+      <button class="modal-close" onclick="closeAddPatient()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-user"></i> Personal Information</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">First Name <span>*</span></label><input class="form-input" id="pt-first" placeholder="e.g. Priya"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Last Name <span>*</span></label><input class="form-input" id="pt-last" placeholder="e.g. Sharma"></div>
+        </div>
+        <div class="form-row3">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Age</label><input class="form-input" id="pt-age" type="number" placeholder="e.g. 32" min="0" max="120"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Gender</label><select class="form-select" id="pt-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Blood Group</label><select class="form-select" id="pt-blood"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+        </div>
+      </div>
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-phone"></i> Contact Details</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Mobile <span>*</span></label><input class="form-input" id="pt-phone" placeholder="+91 XXXXX XXXXX"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Alternate Number</label><input class="form-input" placeholder="+91 XXXXX XXXXX"></div>
+        </div>
+        <div class="form-row" style="margin-bottom:0">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Email</label><input class="form-input" id="pt-email" type="email" placeholder="patient@email.com"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Aadhaar (Optional)</label><input class="form-input" placeholder="XXXX XXXX XXXX"></div>
+        </div>
+      </div>
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-map-pin"></i> Address</div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Full Address</label><textarea class="form-textarea" id="pt-address" style="min-height:52px" placeholder="Street, City, PIN Code"></textarea></div>
+      </div>
+      <div class="ms" style="margin-bottom:0">
+        <div class="ms-label"><i class="ti ti-stethoscope"></i> Medical Details</div>
+        <div style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Referred Doctor</label><select class="form-select" id="pt-doctor"><option value="">Select Doctor</option><option>Dr. Ramesh (General)</option><option>Dr. Priya (Cardiology)</option><option>Dr. Suresh (Ortho)</option><option>Dr. Anita (Endocrinology)</option></select></div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Sample Collection Date</label><input class="form-input" type="date" id="pt-sample-date"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Visit Type</label><select class="form-select" id="pt-visit"><option>OPD</option><option>IPD</option><option>Emergency</option><option>Follow-up</option></select></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Medical History / Notes</label><textarea class="form-textarea" id="pt-notes" style="min-height:52px" placeholder="Known conditions, allergies, relevant history..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeAddPatient()">Cancel</button>
+      <button class="btn btn-outline"><i class="ti ti-barcode"></i> Generate ID</button>
+      <button class="btn btn-primary" onclick="savePatient()"><i class="ti ti-user-check"></i> Register Patient</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ADD TEST MODAL ═══════════════════ -->
+<div class="overlay" id="modal-add-test">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="modal-head-icon"><i class="ti ti-flask"></i></div>
+        <div><h3 id="at-modal-title">Add New Test</h3><p>Fill test details, reference ranges and pricing</p></div>
+      </div>
+      <button class="modal-close" onclick="closeAddTest()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-info-circle"></i> Basic Information</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Test Name <span>*</span></label><input class="form-input" id="at-name" placeholder="e.g. Haemoglobin"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Category</label><select class="form-select" id="at-category"><option>CBC</option><option>CRP</option><option>MP</option><option>WIDAL</option><option>CUE</option><option>DENGUE</option><option>RFT</option><option>LFT</option><option>LIPIDS</option><option>ESR</option><option>HBA1C</option><option>FBS</option><option>PLBS</option><option>CREATININE</option><option>SERUM ELECTROLYTES</option><option>TFT</option><option>IRON PROFILE</option><option>VIT D</option><option>VIT B12</option><option>EGFR</option><option>HOMOCYSTINE</option><option>Blood Sugar</option><option>Thyroid</option><option>Urine</option><option>Hormones</option><option>Cardiac</option><option>Tumor Markers</option></select></div>
+        </div>
+        <div class="form-row3" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Method</label><input class="form-input" placeholder="e.g. HPLC, CLIA"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Units</label><input class="form-input" placeholder="e.g. mg/dL, g/dL"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Sample Type</label><select class="form-select"><option>Serum</option><option>EDTA Blood</option><option>Plasma</option><option>Urine</option><option>Stool</option><option>Swab</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Machine/Analyzer</label><input class="form-input" placeholder="e.g. Sysmex XN-1000"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Department</label><select class="form-select"><option>Hematology</option><option>Biochemistry</option><option>Microbiology</option><option>Serology</option><option>Endocrinology</option></select></div>
+        </div>
+      </div>
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-chart-arrows-vertical"></i> Reference Ranges</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Male Range</label><input class="form-input" placeholder="e.g. 13.0 – 17.0"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Female Range</label><input class="form-input" placeholder="e.g. 11.5 – 15.5"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Pediatric Range</label><input class="form-input" placeholder="e.g. 10.0 – 14.0"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Newborn Range</label><input class="form-input" placeholder="e.g. 14.0 – 24.0"></div>
+        </div>
+      </div>
+      <!-- ── Custom Fields (inline, after Reference Ranges) ── -->
+      <div class="ms">
+        <div class="ms-label" style="justify-content:space-between">
+          <span><i class="ti ti-layout-columns"></i> Custom Fields</span>
+          <span id="cf-count" style="font-size:10px;font-weight:600;color:var(--text4);text-transform:none;letter-spacing:0">0 fields</span>
+        </div>
+        <!-- Add row -->
+        <div style="display:grid;grid-template-columns:1fr 130px 1fr auto;gap:8px;align-items:flex-end;margin-bottom:10px">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Field Label <span style="color:var(--danger)">*</span></label>
+            <input class="form-input" id="cf-label" placeholder="e.g. Collection Time">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Input Type</label>
+            <select class="form-select" id="cf-type">
+              <option value="text">Text</option>
+              <option value="number">Number</option>
+              <option value="date">Date</option>
+              <option value="time">Time</option>
+              <option value="textarea">Textarea</option>
+              <option value="select">Dropdown</option>
+              <option value="checkbox">Checkbox</option>
+              <option value="radio">Yes / No</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Placeholder / Options</label>
+            <input class="form-input" id="cf-placeholder" placeholder="Text or comma-separated options">
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="addCustomField()"><i class="ti ti-plus"></i> Add</button>
+          </div>
+        </div>
+        <!-- Live preview -->
+        <div id="cf-preview" style="margin-bottom:10px;padding:10px 12px;border:1px dashed var(--border2);border-radius:4px;background:var(--bg);display:none">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Preview</div>
+          <div id="cf-preview-inner"></div>
+        </div>
+        <!-- Fields list -->
+        <div id="cf-empty" style="text-align:center;padding:18px 0;color:var(--text4)">
+          <div style="font-size:12px">No custom fields yet. Add one above.</div>
+        </div>
+        <div id="cf-fields-list" style="display:none;border:1px solid var(--border);border-radius:4px;overflow:hidden">
+          <div style="display:grid;grid-template-columns:1fr 110px 1fr 70px;gap:0;padding:7px 12px;background:var(--bg2);font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em">
+            <div>Label</div><div>Type</div><div>Placeholder</div><div style="text-align:right">Actions</div>
+          </div>
+          <div id="cf-rows"></div>
+        </div>
+      </div>
+      <div class="ms" style="margin-bottom:0">
+        <div class="ms-label"><i class="ti ti-currency-rupee"></i> Pricing & Notes</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Test Price (₹) <span>*</span></label><input class="form-input" type="number" placeholder="e.g. 450"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Turnaround Time</label><select class="form-select"><option>Same Day</option><option>24 Hours</option><option>48 Hours</option><option>72 Hours</option><option>1 Week</option></select></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Remarks / Instructions</label><textarea class="form-textarea" style="min-height:52px" placeholder="Special instructions, fasting required, etc."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeAddTest()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAddTest()"><i class="ti ti-plus"></i> Add Test</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BILLING MODAL ═══════════════════ -->
+<div class="overlay" id="modal-billing">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="modal-head-icon"><i class="ti ti-receipt"></i></div>
+        <div><h3>Generate Invoice</h3><p>Invoice #INV-0146 — 20 May 2026</p></div>
+      </div>
+      <button class="modal-close" onclick="closeBilling()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-user"></i> Patient Details</div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Patient</label><select class="form-select"><option>Priya Sharma (P-001)</option><option>Ramesh Kumar (P-002)</option><option>Sunita Devi (P-003)</option></select></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Report No.</label><select class="form-select"><option>#RPT-0239</option><option>#RPT-0238</option><option>#RPT-0237</option></select></div>
+        </div>
+      </div>
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-list"></i> Test Items</div>
+        <div class="bill-row"><span>CBC Profile</span><span>₹350</span></div>
+        <div class="bill-row"><span>Blood Sugar Fasting</span><span>₹60</span></div>
+        <div class="bill-row"><span>KFT Basic</span><span>₹450</span></div>
+        <div class="bill-row"><span>Urine Routine</span><span>₹80</span></div>
+        <div class="bill-row" style="font-weight:600"><span>Subtotal</span><span>₹940</span></div>
+      </div>
+      <div class="ms">
+        <div class="ms-label"><i class="ti ti-currency-rupee"></i> Payment Details</div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Discount (%)</label><input class="form-input" type="number" value="10" placeholder="0"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Discount Amount</label><input class="form-input" value="₹94" readonly></div>
+        </div>
+        <div class="bill-total"><span>Total Payable</span><span>₹846</span></div>
+        <div class="form-row" style="margin-top:12px;margin-bottom:12px">
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Paid Amount</label><input class="form-input" value="846"></div>
+          <div class="form-group" style="margin-bottom:0"><label class="form-label">Balance Due</label><input class="form-input" value="₹0" readonly></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Payment Mode</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="pay-mode" checked> Cash</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="pay-mode"> Card</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="pay-mode"> UPI</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="pay-mode"> Mixed</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeBilling()">Cancel</button>
+      <button class="btn btn-outline"><i class="ti ti-printer"></i> Thermal Receipt</button>
+      <button class="btn btn-primary" onclick="closeBilling()"><i class="ti ti-check"></i> Confirm Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CREATE REPORT MODAL ═══════════════════ -->
+<div class="overlay" id="modal-create-report">
+  <div class="modal modal-lg">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="modal-head-icon"><i class="ti ti-file-plus"></i></div>
+        <div><h3>Create Report</h3><p id="cr-step-title">Step 1: Select Patient</p></div>
+      </div>
+      <button class="modal-close" onclick="closeCreateReportModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="cr-step-1" class="cr-step">
+        <div class="search-bar" style="width:100%;margin-bottom:14px"><i class="ti ti-search"></i><input type="text" id="cr-search-pt" placeholder="Search patients..."></div>
+        <div class="table-wrap" style="max-height:300px;overflow-y:auto">
+          <table>
+            <thead><tr><th>Patient</th><th>ID</th><th>Phone</th><th>Select</th></tr></thead>
+            <tbody id="cr-pt-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="cr-step-2" class="cr-step" style="display:none">
+        <div class="search-bar" style="width:100%;margin-bottom:14px"><i class="ti ti-search"></i><input type="text" id="cr-test-search" placeholder="Search tests..." oninput="filterCrTests(this.value)"></div>
+        <div class="table-wrap" style="max-height:320px;overflow-y:auto">
+          <table>
+            <thead><tr><th>Test Name</th><th>Category</th><th>Select</th></tr></thead>
+            <tbody id="cr-test-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="cr-step-3" class="cr-step" style="display:none">
+        <div id="cr-gender-strip" style="display:none;padding:7px 14px;background:var(--primary-light);border:1px solid #BAD8FF;border-radius:var(--r-sm) var(--r-sm) 0 0;font-size:12px;font-weight:600;color:var(--primary);align-items:center;gap:8px;margin-bottom:0">
+          <i class="ti ti-user-check"></i>
+          <span id="cr-gender-text"></span>
+          <span id="cr-test-name-text" style="font-size:11px;font-weight:500;color:var(--text2);margin-left:4px"></span>
+        </div>
+        <div id="cr-values-container"></div>
+        <div style="padding:14px 14px 4px">
+          <label class="form-label" style="display:flex;align-items:center;gap:6px"><i class="ti ti-notes" style="color:var(--primary);font-size:14px"></i> Doctor's Remarks</label>
+          <textarea id="cr-remarks" class="form-textarea" placeholder="Add clinical remarks, interpretation notes, follow-up instructions..."></textarea>
+        </div>
+      </div>
+      <div id="cr-step-4" class="cr-step" style="display:none">
+        <div style="background:var(--primary-light);border:1px solid #BAD8FF;border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+          <i class="ti ti-eye-check" style="color:var(--primary);font-size:16px"></i>
+          <span style="font-size:12px;font-weight:600;color:var(--primary)">Report Preview</span>
+          <span id="cr-preview-pt" style="font-size:12px;color:var(--text2);margin-left:4px"></span>
+        </div>
+        <div id="cr-step4-table-wrap" style="border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden">
+          <div style="background:var(--bg);padding:7px 14px;font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Laboratory Test Results</div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:var(--primary)">
+              <th style="padding:8px 12px;font-size:11px;font-weight:600;color:#fff!important;background:var(--primary)!important;text-align:left">#</th>
+              <th style="padding:8px 12px;font-size:11px;font-weight:600;color:#fff!important;background:var(--primary)!important;text-align:left">Parameters</th>
+              <th style="padding:8px 12px;font-size:11px;font-weight:600;color:#fff!important;background:var(--primary)!important;text-align:left">Value</th>
+              <th style="padding:8px 12px;font-size:11px;font-weight:600;color:#fff!important;background:var(--primary)!important;text-align:left">Unit</th>
+              <th style="padding:8px 12px;font-size:11px;font-weight:600;color:#fff!important;background:var(--primary)!important;text-align:left">Ref Values</th>
+            </tr></thead>
+            <tbody id="cr-step4-tbody"></tbody>
+          </table>
+        </div>
+        <p id="cr-preview-tests" style="display:none"></p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="cr-btn-back" style="display:none" onclick="crPrevStep()">Back</button>
+      <button class="btn btn-ghost" onclick="closeCreateReportModal()">Cancel</button>
+      <button class="btn btn-primary" id="cr-btn-next" onclick="crNextStep()">Next Step <i class="ti ti-arrow-right"></i></button>
+      <button class="btn btn-success" id="cr-btn-commit" style="display:none" onclick="crCommit()">Commit Report <i class="ti ti-check"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REPORT PRINT MODAL ═══════════════════ -->
+<div class="rpt-modal" id="rpt-modal">
+  <div class="rpt-paper">
+    <div class="rpt-actions">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--text3);font-weight:600">Report Preview</span>
+        <span class="badge b-info">#RPT-0238</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="closeReport()"><i class="ti ti-x"></i> Close</button>
+        <button class="btn btn-outline btn-sm"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
+        <button class="btn btn-outline btn-sm" onclick="downloadPDF()"><i class="ti ti-download"></i> Save PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="printReport()"><i class="ti ti-printer"></i> Print</button>
+      </div>
+    </div>
+    <div id="rpt-body">
+      <!-- Report Header -->
+      <div class="rpt-header">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="rpt-logo-box"><i class="ti ti-dna-2" id="rpt-logo-icon"></i><img src="" alt="" id="rpt-logo-img" style="display:none"></div>
+          <div>
+            <div class="rpt-center-name" id="rpt-center-name">Advanced Diagnostics Lab</div>
+            <div class="rpt-center-sub" id="rpt-center-sub">123 Medical Colony, Bengaluru – 560001</div>
+            <div class="rpt-center-sub">Ph: +91 80 1234 5678 &nbsp;|&nbsp; info@advanceddiag.in &nbsp;|&nbsp; Reg: DX-KA-2024-0091</div>
+          </div>
+        </div>
+        <div class="rpt-meta">
+          <div class="rpt-id">#RPT-0238</div>
+          <div class="rpt-date">Date: 19 May 2026</div>
+          <div class="rpt-date">Time: 10:45 AM</div>
+          <div class="rpt-barcode">| | ||| || | ||| | | || |||</div>
+          <div><span class="rpt-badge">Pathology Report</span></div>
+        </div>
+      </div>
+
+      <!-- Patient Details -->
+      <div class="rpt-patient-grid">
+        <div><div class="rfl">Patient Name</div><div class="rfv">Priya Sharma</div><div class="rfs">Patient ID: #P-001</div></div>
+        <div><div class="rfl">Age / Gender / Blood</div><div class="rfv">32 Yrs / Female / B+</div><div class="rfs">+91 98765 43210</div></div>
+        <div><div class="rfl">Referred By</div><div class="rfv">Dr. Ramesh</div><div class="rfs">OPD Consultation</div></div>
+        <div><div class="rfl">Sample Collection</div><div class="rfv">19 May 2026, 8:30 AM</div><div class="rfs">Main Lab</div></div>
+        <div><div class="rfl">Report Date</div><div class="rfv">19 May 2026, 12:00 PM</div><div class="rfs">Same day report</div></div>
+        <div><div class="rfl">Barcode / Sample ID</div><div class="rfv" style="font-family:'Poppins',sans-serif">SMP-2026-0238</div><div class="rfs">EDTA + Serum</div></div>
+      </div>
+
+      <!-- Vital Signs -->
+      <div class="rpt-sec-title"><i class="ti ti-heartbeat"></i> Vital Signs</div>
+      <div class="rpt-vitals">
+        <div class="vital-card"><div class="vital-lbl">Blood Pressure</div><div class="vital-val">118/76</div><div class="vital-unit">mmHg — Normal</div></div>
+        <div class="vital-card"><div class="vital-lbl">Heart Rate</div><div class="vital-val">78</div><div class="vital-unit">bpm — Normal</div></div>
+        <div class="vital-card"><div class="vital-lbl">Temperature</div><div class="vital-val">98.6°F</div><div class="vital-unit">37°C — Normal</div></div>
+        <div class="vital-card"><div class="vital-lbl">SpO₂</div><div class="vital-val">99%</div><div class="vital-unit">Oxygen Saturation</div></div>
+      </div>
+
+      <!-- Lab Results -->
+      <div class="rpt-sec-title"><i class="ti ti-flask"></i> Laboratory Test Results — Complete Blood Count (CBC)</div>
+      <table class="rpt-table">
+        <thead><tr><th>#</th><th>Test Name</th><th>Result</th><th>Unit</th><th>Reference Range</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><strong>Haemoglobin (Hb)</strong></td><td>13.2</td><td>g/dL</td><td>12.0 – 16.0 (F)</td><td><span class="s-normal">Normal</span></td></tr>
+          <tr><td>2</td><td><strong>WBC / TLC</strong></td><td>9,800</td><td>cells/μL</td><td>4,000 – 11,000</td><td><span class="s-normal">Normal</span></td></tr>
+          <tr class="abnormal"><td>3</td><td><strong>Platelet Count</strong></td><td>1,40,000</td><td>cells/μL</td><td>1,50,000 – 4,50,000</td><td><span class="s-low">Low ↓</span></td></tr>
+          <tr><td>4</td><td><strong>RBC Count</strong></td><td>4.8</td><td>million/μL</td><td>4.2 – 5.4</td><td><span class="s-normal">Normal</span></td></tr>
+          <tr><td>5</td><td><strong>PCV / Hematocrit</strong></td><td>42%</td><td>%</td><td>37 – 47</td><td><span class="s-normal">Normal</span></td></tr>
+        </tbody>
+      </table>
+
+      <div class="rpt-sec-title"><i class="ti ti-droplet"></i> Blood Biochemistry</div>
+      <table class="rpt-table">
+        <thead><tr><th>#</th><th>Test Name</th><th>Result</th><th>Unit</th><th>Reference Range</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr class="abnormal"><td>1</td><td><strong>Blood Sugar (Fasting)</strong></td><td><strong style="color:var(--danger)">112</strong></td><td>mg/dL</td><td>70 – 99</td><td><span class="s-high">High ↑</span></td></tr>
+          <tr><td>2</td><td><strong>Serum Creatinine</strong></td><td>0.8</td><td>mg/dL</td><td>0.6 – 1.2 (F)</td><td><span class="s-normal">Normal</span></td></tr>
+          <tr><td>3</td><td><strong>Serum Urea</strong></td><td>28</td><td>mg/dL</td><td>15 – 40</td><td><span class="s-normal">Normal</span></td></tr>
+          <tr><td>4</td><td><strong>Total Bilirubin</strong></td><td>0.7</td><td>mg/dL</td><td>0.2 – 1.2</td><td><span class="s-normal">Normal</span></td></tr>
+        </tbody>
+      </table>
+
+      <!-- Remarks -->
+      <div class="rpt-sec-title"><i class="ti ti-notes"></i> Doctor's Remarks</div>
+      <div class="rpt-remarks">Borderline fasting blood sugar — patient advised to follow up with HbA1c test and dietary guidance. Mild thrombocytopenia noted; repeat CBC in 2 weeks. All other parameters within acceptable range. Follow-up after 7 days.</div>
+
+      <!-- Signature -->
+      <div class="rpt-sig">
+        <div class="rpt-footer-note">This report is for diagnostic purposes only. Results should be interpreted in clinical context by the treating physician. For queries: info@advanceddiag.in | Ph: +91 80 1234 5678</div>
+        <div class="rpt-sig-box">
+          <div class="rpt-sig-line" style="margin-left:auto"></div>
+          <div class="rpt-sig-name">Dr. Ramesh Kumar</div>
+          <div class="rpt-sig-title">MBBS, MD — General Medicine</div>
+          <div class="rpt-sig-title">Reg No: KMC-12345</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ DATA ══════════ */
+const BG = {'A+':'#EAF4FF','A-':'#EAF4FF','B+':'#ECFDF5','B-':'#ECFDF5','O+':'#FFFBEB','O-':'#FFFBEB','AB+':'#FEF2F2','AB-':'#FEF2F2'};
+const BGT = {'A+':'var(--primary)','A-':'var(--primary)','B+':'var(--success)','B-':'var(--success)','O+':'var(--warning)','O-':'var(--warning)','AB+':'var(--danger)','AB-':'var(--danger)'};
+
+let patients = [
+  {id:'P-001',first:'Priya',last:'Sharma',dob:'1994-03-10',gender:'Female',blood:'B+',phone:'+91 98765 43210',email:'priya@email.com',regDate:'10 Mar 2026',reports:8},
+  {id:'P-002',first:'Ramesh',last:'Kumar',dob:'1981-07-22',gender:'Male',blood:'O+',phone:'+91 87654 32109',email:'ramesh@email.com',regDate:'22 Jul 2025',reports:12},
+  {id:'P-003',first:'Sunita',last:'Devi',dob:'1998-11-05',gender:'Female',blood:'A-',phone:'+91 76543 21098',email:'sunita@email.com',regDate:'05 Nov 2025',reports:3},
+  {id:'P-004',first:'Anil',last:'Patel',dob:'1971-04-18',gender:'Male',blood:'AB+',phone:'+91 65432 10987',email:'anil@email.com',regDate:'18 Apr 2025',reports:21},
+  {id:'P-005',first:'Meena',last:'Joshi',dob:'1988-09-30',gender:'Female',blood:'O-',phone:'+91 54321 09876',email:'meena@email.com',regDate:'30 Sep 2025',reports:5},
+];
+let ptCtr = 6;
+
+function getAge(p){if(p.age)return p.age;if(p.dob&&p.dob!=='')return Math.floor((Date.now()-new Date(p.dob))/(365.25*24*3600*1000));return'—';}
+function initials(p){return(p.first[0]+p.last[0]).toUpperCase();}
+
+function buildRow(p){
+  const age=getAge(p);
+  const bs=p.blood?`background:${BG[p.blood]||'#f3f4f6'};color:${BGT[p.blood]||'var(--text)'}`:' ';
+  return`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px"><div class="pt-av">${initials(p)}</div><div><div style="font-weight:600">${p.first} ${p.last}</div><div style="font-size:11.5px;color:var(--text3)">${p.email||''}</div></div></div></td>
+    <td><span style="color:var(--primary);font-weight:700;font-family:'Poppins',sans-serif">#${p.id}</span></td>
+    <td>${age!=='—'?age+' yrs':'—'} / ${p.gender||'—'}</td>
+    ${document.getElementById('pt-page-tbody')?`<td>${p.phone||'—'}</td>`:''}
+    <td>${p.blood?`<span class="badge" style="${bs}">${p.blood}</span>`:'—'}</td>
+    <td style="font-size:12px;color:var(--text3)">${p.regDate||'—'}</td>
+    <td><span class="badge b-info">${p.reports} reports</span></td>
+    <td><div style="display:flex;gap:5px">
+      <button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-eye"></i></button>
+      <button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-edit"></i></button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-file-text"></i></button>
+    </div></td>
+  </tr>`;
+}
+function buildDashRow(p){
+  const age=getAge(p.dob);
+  const bs=p.blood?`background:${BG[p.blood]||'#f3f4f6'};color:${BGT[p.blood]||'var(--text)'}`:' ';
+  return`<tr>
+    <td><div style="display:flex;align-items:center;gap:10px"><div class="pt-av">${initials(p)}</div><div><div style="font-weight:600">${p.first} ${p.last}</div><div style="font-size:11.5px;color:var(--text3)">${p.email||''}</div></div></div></td>
+    <td><span style="color:var(--primary);font-weight:700;font-family:'Poppins',sans-serif">#${p.id}</span></td>
+    <td>${age!=='—'?age+' yrs':'—'} / ${p.gender||'—'}</td>
+    <td>${p.blood?`<span class="badge" style="${bs}">${p.blood}</span>`:'—'}</td>
+    <td style="font-size:12px;color:var(--text3)">${p.regDate||'—'}</td>
+    <td><div style="display:flex;gap:5px">
+      <button class="btn btn-ghost btn-sm btn-icon"><i class="ti ti-eye"></i></button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-file-text"></i></button>
+    </div></td>
+  </tr>`;
+}
+
+function renderPatients(filter){
+  const f=(filter||'').toLowerCase();
+  const list=f?patients.filter(p=>`${p.first} ${p.last}`.toLowerCase().includes(f)||p.id.includes(f)||(p.phone||'').includes(f)):patients;
+  const empty=`<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text3)"><i class="ti ti-mood-empty" style="font-size:22px;display:block;margin-bottom:6px"></i>No patients found</td></tr>`;
+  const db=document.getElementById('db-patient-tbody');
+  const pg=document.getElementById('pt-page-tbody');
+  if(db) db.innerHTML=list.length?list.map(buildDashRow).join(''):empty;
+  if(pg) pg.innerHTML=list.length?list.map(buildRow).join(''):empty;
+  const ht=document.getElementById('hero-total');if(ht)ht.textContent=patients.length;
+  const dbt=document.getElementById('db-total-pt');if(dbt)dbt.textContent=patients.length;
+  const ptt=document.getElementById('pt-total-v');if(ptt)ptt.textContent=patients.length;
+  const nb=document.getElementById('nb-pts');if(nb)nb.textContent=patients.length;
+}
+
+function filterPatients(v){renderPatients(v);}
+function filterTests(v){/* prototype stub */}
+function filterTestCat(cat){
+  document.querySelectorAll('.test-cat-pill').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+/* ══════════ NAVIGATION ══════════ */
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  // if going to reports, reset to pending tab
+  if(id==='reports'){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('rpt-tab-pending').style.display='';
+    document.getElementById('rpt-tab-all').style.display='none';
+    document.getElementById('rpt-tab-entry').style.display='none';
+    const tabs=document.querySelectorAll('#page-reports .tab');
+    if(tabs[0])tabs[0].classList.add('active');
+  }
+}
+
+/* ══════════ TABS ══════════ */
+function switchTab(el,tabId){
+  const allTabs=el.closest('.tabs').querySelectorAll('.tab');
+  allTabs.forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const page=el.closest('.page');
+  page.querySelectorAll('[id^="rpt-tab-"]').forEach(t=>t.style.display='none');
+  document.getElementById(tabId).style.display='';
+}
+function switchTabById(tabId){
+  const page=document.getElementById('page-reports');
+  page.querySelectorAll('[id^="rpt-tab-"]').forEach(t=>t.style.display='none');
+  document.getElementById(tabId).style.display='';
+  const tabs=page.querySelectorAll('.tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  if(tabId==='rpt-tab-entry' && tabs[2])tabs[2].classList.add('active');
+}
+
+/* ══════════ ADD PATIENT MODAL ══════════ */
+function openAddPatient(){document.getElementById('modal-add-patient').classList.add('open');document.body.style.overflow='hidden';}
+function closeAddPatient(){document.getElementById('modal-add-patient').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-add-patient').addEventListener('click',function(e){if(e.target===this)closeAddPatient();});
+
+function previewAvatar(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{const img=document.getElementById('avatar-preview');img.src=ev.target.result;img.style.display='block';document.getElementById('av-icon').style.display='none';document.getElementById('av-lbl').style.display='none';};
+  r.readAsDataURL(f);
+}
+
+function savePatient(){
+  const first=document.getElementById('pt-first').value.trim();
+  const last=document.getElementById('pt-last').value.trim();
+  const phone=document.getElementById('pt-phone').value.trim();
+  let ok=true;
+  [['pt-first',first],['pt-last',last],['pt-phone',phone]].forEach(([id,v])=>{
+    const el=document.getElementById(id);el.style.borderColor=v?'':'var(--danger)';if(!v)ok=false;
+  });
+  if(!ok)return;
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  patients.unshift({
+    id:'P-'+String(ptCtr).padStart(3,'0'),first,last,
+    dob:'',
+    age:document.getElementById('pt-age').value.trim(),
+    gender:document.getElementById('pt-gender').value,
+    blood:document.getElementById('pt-blood').value,
+    phone,email:document.getElementById('pt-email').value.trim(),
+    regDate:dateStr,reports:0
+  });
+  ptCtr++;
+  renderPatients();
+  closeAddPatient();
+  resetAddForm();
+}
+function resetAddForm(){
+  ['pt-first','pt-last','pt-age','pt-phone','pt-email','pt-address','pt-notes'].forEach(id=>{const el=document.getElementById(id);if(el){el.value='';el.style.borderColor='';}});
+  ['pt-gender','pt-blood','pt-doctor','pt-visit'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  const prev=document.getElementById('avatar-preview');prev.src='';prev.style.display='none';
+  document.getElementById('av-icon').style.display='';document.getElementById('av-lbl').style.display='';
+}
+
+/* ══════════ TEST MODAL ══════════ */
+function openAddTest(){document.getElementById('modal-add-test').classList.add('open');document.body.style.overflow='hidden';}
+function closeAddTest(){document.getElementById('modal-add-test').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-add-test').addEventListener('click',function(e){if(e.target===this)closeAddTest();});
+
+/* ══════════ BILLING MODAL ══════════ */
+function openBilling(){document.getElementById('modal-billing').classList.add('open');document.body.style.overflow='hidden';}
+function closeBilling(){document.getElementById('modal-billing').classList.remove('open');document.body.style.overflow='';}
+document.getElementById('modal-billing').addEventListener('click',function(e){if(e.target===this)closeBilling();});
+
+/* ══════════ CREATE REPORT WIZARD ══════════ */
+let crStep = 1;
+let crSelectedPatient = null;
+let crCustomFieldValues = {};  // captured when leaving step 3
+function openCreateReportModal(){
+  crStep = 1; crSelectedPatient = null; crCustomFieldValues = {};
+  // Clear all previously entered values
+  const remarksEl = document.getElementById('cr-remarks');
+  if(remarksEl) remarksEl.value = '';
+  const container = document.getElementById('cr-values-container');
+  if(container) container.innerHTML = '';
+  const prevPt = document.getElementById('cr-preview-pt');
+  if(prevPt) prevPt.innerText = '';
+  const prevTests = document.getElementById('cr-preview-tests');
+  if(prevTests) prevTests.innerText = '';
+  const searchPt = document.getElementById('cr-search-pt');
+  if(searchPt) searchPt.value = '';
+  const searchTest = document.getElementById('cr-test-search');
+  if(searchTest) searchTest.value = '';
+  const strip = document.getElementById('cr-gender-strip');
+  if(strip) strip.style.display = 'none';
+  const gtext = document.getElementById('cr-gender-text');
+  if(gtext) gtext.textContent = '';
+  const ttext = document.getElementById('cr-test-name-text');
+  if(ttext) ttext.textContent = '';
+  document.getElementById('modal-create-report').classList.add('open');
+  document.body.style.overflow='hidden';
+  updateCrWizardUI(); populateCrPatients();
+  renderCrTests();
+}
+function closeCreateReportModal(){
+  document.getElementById('modal-create-report').classList.remove('open');
+  document.body.style.overflow='';
+  const remarksEl = document.getElementById('cr-remarks');
+  if(remarksEl) remarksEl.value = '';
+  const container = document.getElementById('cr-values-container');
+  if(container) container.innerHTML = '';
+}
+function populateCrPatients(){
+  const tb = document.getElementById('cr-pt-tbody');
+  tb.innerHTML = patients.map(p => `
+    <tr>
+      <td><strong>${p.first} ${p.last}</strong></td>
+      <td>${p.id}</td>
+      <td>${p.phone||'—'}</td>
+      <td><input type="radio" name="cr-pt-radio" value="${p.id}" onchange="crSelectedPatient=patients.find(x=>x.id==='${p.id}')"></td>
+    </tr>
+  `).join('');
+}
+/* ══════════ REFERENCE RANGE PARSER ══════════ */
+function parseRefRange(ref, gender){
+  if(!ref||ref==='—'||ref==='See report'||ref==='Negative'||ref==='Non-reactive'||ref==='< 1:80')
+    return{low:null,high:null,display:ref||'—'};
+  // Gender-specific: "M:0-15 F:0-20"
+  const gm=ref.match(/M[:\s]*([\d.]+)\s*[-–]\s*([\d.]+)\s+F[:\s]*([\d.]+)\s*[-–]\s*([\d.]+)/i);
+  if(gm){
+    if(gender&&gender.toLowerCase()==='female')
+      return{low:parseFloat(gm[3]),high:parseFloat(gm[4]),display:`${gm[3]} – ${gm[4]}`};
+    return{low:parseFloat(gm[1]),high:parseFloat(gm[2]),display:`${gm[1]} – ${gm[2]}`};
+  }
+  // Range: "70 – 99"
+  const rm=ref.match(/([\d.]+)\s*[–\-]\s*([\d.]+)/);
+  if(rm)return{low:parseFloat(rm[1]),high:parseFloat(rm[2]),display:ref};
+  // < value
+  const ltm=ref.match(/^<\s*([\d.]+)/);
+  if(ltm)return{low:null,high:parseFloat(ltm[1]),display:ref};
+  // > value
+  const gtm=ref.match(/^>\s*([\d.]+)/);
+  if(gtm)return{low:parseFloat(gtm[1]),high:null,display:ref};
+  return{low:null,high:null,display:ref};
+}
+
+/* ══════════ LIVE FLAG VALUE WHILE ENTERING ══════════ */
+function crFlagValue(input){
+  const val=parseFloat(input.value);
+  const low=input.dataset.low!==''?parseFloat(input.dataset.low):null;
+  const high=input.dataset.high!==''?parseFloat(input.dataset.high):null;
+  const sid='cr-stat-'+input.dataset.idx;
+  const badge=document.getElementById(sid);
+  if(isNaN(val)){
+    input.style.fontWeight='';input.style.color='';input.style.borderColor='';
+    if(badge){badge.className='result-status rs-normal';badge.textContent='—';}
+    return;
+  }
+  if(high!==null&&val>high){
+    input.style.fontWeight='700';input.style.color='var(--danger)';input.style.borderColor='var(--danger)';
+    if(badge){badge.className='result-status rs-high';badge.innerHTML='High <span style="font-size:10px">↑</span>';}
+  }else if(low!==null&&val<low){
+    input.style.fontWeight='300';input.style.color='var(--warning)';input.style.borderColor='var(--warning)';
+    if(badge){badge.className='result-status rs-low';badge.innerHTML='Low <span style="font-size:10px">↓</span>';}
+  }else{
+    input.style.fontWeight='500';input.style.color='var(--success)';input.style.borderColor='var(--success)';
+    if(badge){badge.className='result-status rs-normal';badge.textContent='Normal';}
+  }
+}
+
+function crNextStep(){
+  if(crStep === 1 && !crSelectedPatient) { alert("Select a patient first."); return; }
+  if(crStep === 2) {
+    const checks = document.querySelectorAll('.cr-test-chk:checked');
+    if(checks.length === 0) { alert("Select at least one test."); return; }
+    const gender = crSelectedPatient.gender || '';
+    // Show gender strip
+    const strip=document.getElementById('cr-gender-strip');
+    const gtext=document.getElementById('cr-gender-text');
+    if(strip&&gtext){
+      strip.style.display='flex';
+      gtext.textContent=`${crSelectedPatient.first} ${crSelectedPatient.last}  ·  Gender: ${gender||'Not specified'}`;
+      const testNamesEl=document.getElementById('cr-test-name-text');
+      if(testNamesEl){
+        const testNames=Array.from(checks).map(c=>c.value);
+        testNamesEl.textContent='— '+testNames.join(', ');
+      }
+    }
+    // Show selected tests as pills
+    const testNames = Array.from(checks).map(c=>c.value);
+    let html = `<div style="padding:10px 14px 4px">
+      <div style="background:var(--primary-light);border:1px solid #BAD8FF;border-radius:var(--r-sm);padding:12px 14px;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Selected Tests (${testNames.length})</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">${testNames.map(n=>`<span style="background:#fff;border:1px solid #BAD8FF;border-radius:4px;padding:3px 10px;font-size:12px;font-weight:500;color:var(--text)">${n}</span>`).join('')}</div>
+      </div>`;
+    // Custom field input rows
+    if(customFields.length > 0){
+      html += `<div style="border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px">
+        <div style="background:var(--bg);padding:8px 14px;font-size:10px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Custom Fields</div>
+        <div style="display:grid;grid-template-columns:2fr 1.2fr 1.2fr 1.2fr;padding:8px 14px 4px;gap:8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border)"><span>Field</span><span>Value</span><span>Unit</span><span>Ref Values</span></div>`;
+      customFields.forEach(f=>{
+        html += `<div style="display:grid;grid-template-columns:2fr 1.2fr 1.2fr 1.2fr;gap:8px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border2);font-size:13px">
+          <div><strong>${f.label}</strong></div>
+          <div><input class="form-input cr-cf-result" type="text" data-cf-id="${f.id}" data-cf-label="${f.label}" placeholder="${f.placeholder||'Enter value'}" style="padding:5px 8px;font-size:12.5px"></div>
+          <div><input class="form-input cr-cf-unit" type="text" data-cf-id="${f.id}" placeholder="Unit" style="padding:5px 8px;font-size:12.5px"></div>
+          <div><input class="form-input cr-cf-ref" type="text" data-cf-id="${f.id}" placeholder="Ref values" style="padding:5px 8px;font-size:12.5px"></div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+    document.getElementById('cr-values-container').innerHTML = html;
+  }
+  if(crStep === 3) {
+    // Capture custom field values before moving to step 4
+    crCustomFieldValues = {};
+    customFields.forEach(f => {
+      const resultEl = document.querySelector(`.cr-cf-result[data-cf-id="${f.id}"]`);
+      const unitEl   = document.querySelector(`.cr-cf-unit[data-cf-id="${f.id}"]`);
+      const refEl    = document.querySelector(`.cr-cf-ref[data-cf-id="${f.id}"]`);
+      crCustomFieldValues[f.id] = {
+        label: f.label,
+        value: resultEl ? (resultEl.value.trim() || '—') : '—',
+        unit:  unitEl   ? (unitEl.value.trim()   || '—') : '—',
+        ref:   refEl    ? (refEl.value.trim()     || '—') : '—'
+      };
+    });
+    const checks = Array.from(document.querySelectorAll('.cr-test-chk:checked')).map(c=>c.value);
+    document.getElementById('cr-preview-pt').innerText = `— ${crSelectedPatient.first} ${crSelectedPatient.last} (${crSelectedPatient.id})  ·  Gender: ${crSelectedPatient.gender||'—'}`;
+    // Populate preview table
+    const previewTbody = document.getElementById('cr-step4-tbody');
+    if(previewTbody){
+      if(customFields.length > 0){
+        previewTbody.innerHTML = customFields.map((f,i)=>{
+          const cf = crCustomFieldValues[f.id] || {};
+          return `<tr style="border-bottom:1px solid var(--border2)">
+            <td style="padding:9px 12px;font-size:12.5px">${i+1}</td>
+            <td style="padding:9px 12px;font-size:12.5px"><strong>${f.label}</strong></td>
+            <td style="padding:9px 12px;font-size:12.5px">${cf.value||'—'}</td>
+            <td style="padding:9px 12px;font-size:12.5px">${cf.unit||'—'}</td>
+            <td style="padding:9px 12px;font-size:12.5px">${cf.ref||'—'}</td>
+          </tr>`;
+        }).join('');
+      } else {
+        previewTbody.innerHTML = `<tr><td colspan="5" style="padding:20px;text-align:center;color:var(--text3);font-size:12.5px">No custom fields added</td></tr>`;
+      }
+    }
+  }
+  if(crStep < 4) crStep++;
+  updateCrWizardUI();
+}
+function crPrevStep(){ if(crStep > 1) crStep--; updateCrWizardUI(); }
+function updateCrWizardUI(){
+  document.querySelectorAll('.cr-step').forEach(el => el.style.display='none');
+  document.getElementById('cr-step-' + crStep).style.display='block';
+  const titles = ["Step 1: Select Patient", "Step 2: Select Tests", "Step 3: Enter Values", "Step 4: Preview & Commit"];
+  document.getElementById('cr-step-title').innerText = titles[crStep-1];
+  document.getElementById('cr-btn-back').style.display = crStep > 1 ? 'inline-flex' : 'none';
+  document.getElementById('cr-btn-next').style.display = crStep < 4 ? 'inline-flex' : 'none';
+  document.getElementById('cr-btn-commit').style.display = crStep === 4 ? 'inline-flex' : 'none';
+}
+function crCommit(){
+  /* ── 1. Collect selected test names (for summary only, not table) ── */
+  const checks = Array.from(document.querySelectorAll('.cr-test-chk:checked'));
+  const results = checks.map(c => ({ name: c.value }));
+
+  /* ── 2. Custom field rows only ── */
+  let customRows = '';
+  if (customFields.length > 0) {
+    customFields.forEach((f, ci) => {
+      const cf = crCustomFieldValues[f.id] || {};
+      customRows += `<tr>
+        <td>${ci + 1}</td>
+        <td><strong>${f.label}</strong></td>
+        <td>${cf.value || '—'}</td>
+        <td>${cf.unit  || '—'}</td>
+        <td>${cf.ref   || '—'}</td>
+      </tr>`;
+    });
+  }
+
+  /* ── 4. Meta ── */
+  const rptId     = '#RPT-' + (Math.floor(Math.random()*1000)+1000);
+  const now       = new Date();
+  const dateStr   = now.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  const timeStr   = now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const age       = getAge(crSelectedPatient);
+  const remarks   = document.getElementById('cr-remarks').value.trim();
+  const centerName= document.getElementById('rpt-center-name').textContent;
+  const centerSub = document.getElementById('rpt-center-sub').textContent;
+  const logoImg   = document.getElementById('rpt-logo-img');
+  const logoHtml  = logoImg && logoImg.style.display !== 'none'
+    ? `<img src="${logoImg.src}" style="width:100%;height:100%;object-fit:cover">`
+    : `<i class="ti ti-dna-2"></i>`;
+
+  /* ── 6. Write report body ── */
+  document.getElementById('rpt-body').innerHTML = `
+    <div class="rpt-header">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="rpt-logo-box">${logoHtml}</div>
+        <div>
+          <div class="rpt-center-name" id="rpt-center-name">${centerName}</div>
+          <div class="rpt-center-sub" id="rpt-center-sub">${centerSub}</div>
+          <div class="rpt-center-sub">Reg: DX-2024-0091</div>
+        </div>
+      </div>
+      <div class="rpt-meta">
+        <div class="rpt-id">${rptId}</div>
+        <div class="rpt-date">Date: ${dateStr}</div>
+        <div class="rpt-date">Time: ${timeStr}</div>
+        <div class="rpt-barcode">| | ||| || | ||| | | || |||</div>
+        <div><span class="rpt-badge">Pathology Report</span></div>
+      </div>
+    </div>
+    <div class="rpt-patient-grid">
+      <div><div class="rfl">Patient Name</div><div class="rfv">${crSelectedPatient.first} ${crSelectedPatient.last}</div><div class="rfs">ID: #${crSelectedPatient.id}</div></div>
+      <div><div class="rfl">Age / Gender / Blood</div><div class="rfv">${age!=='—'?age+' Yrs':'—'} / ${crSelectedPatient.gender||'—'} / ${crSelectedPatient.blood||'—'}</div><div class="rfs">${crSelectedPatient.phone||''}</div></div>
+      <div><div class="rfl">Referred By</div><div class="rfv">Dr. Admin</div><div class="rfs">—</div></div>
+      <div><div class="rfl">Sample Collection</div><div class="rfv">${dateStr}, ${timeStr}</div><div class="rfs">Main Lab</div></div>
+      <div><div class="rfl">Report Date</div><div class="rfv">${dateStr}</div><div class="rfs">Same day report</div></div>
+      <div><div class="rfl">Sample ID</div><div class="rfv">${rptId.replace('#','')}-SMP</div><div class="rfs">Serum / EDTA</div></div>
+    </div>
+    <div class="rpt-sec-title"><i class="ti ti-flask"></i> Laboratory Test Results</div>
+    <table class="rpt-table">
+      <thead><tr><th>#</th><th>Parameters</th><th>Value</th><th>Unit</th><th>Ref Values</th></tr></thead>
+      <tbody>${customRows}</tbody>
+    </table>
+    ${remarks ? `<div class="rpt-sec-title"><i class="ti ti-notes"></i> Doctor's Remarks</div><div class="rpt-remarks">${remarks}</div>` : ''}
+    <div class="rpt-sig">
+      <div class="rpt-footer-note">
+        This report is for diagnostic purposes only. Results should be interpreted in clinical context by the treating physician.
+      </div>
+      <div class="rpt-sig-box">
+        <div class="rpt-sig-line" style="margin-left:auto"></div>
+        <div class="rpt-sig-name">Dr. Admin</div>
+        <div class="rpt-sig-title">MBBS, MD — Pathology</div>
+        <div class="rpt-sig-title">Authorized Signatory</div>
+      </div>
+    </div>`;
+
+  /* ── 7. Update badge & reports table ── */
+  const badge = document.querySelector('.rpt-actions .badge');
+  if (badge) badge.textContent = rptId;
+  const testNames = results.map(r=>r.name).join(', ');
+  const tbody = document.querySelector('#rpt-tab-all tbody');
+  tbody.insertAdjacentHTML('afterbegin',`<tr>
+    <td><strong style="color:var(--primary)">${rptId}</strong></td>
+    <td>${crSelectedPatient.first} ${crSelectedPatient.last}</td>
+    <td>${dateStr}</td><td>Dr. Admin</td><td>${testNames}</td>
+    <td><span class="status-pill sp-done">Completed</span></td>
+    <td><div style="display:flex;gap:4px">
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-printer"></i></button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="openReport()"><i class="ti ti-eye"></i></button>
+    </div></td>
+  </tr>`);
+  closeCreateReportModal();
+  switchTabById('rpt-tab-all');
+}
+
+/* ══════════ REPORT MODAL ══════════ */
+function openReport(){document.getElementById('rpt-modal').classList.add('open');}
+function closeReport(){document.getElementById('rpt-modal').classList.remove('open');}
+document.getElementById('rpt-modal').addEventListener('click',function(e){if(e.target===this)closeReport();});
+
+function printReport(){
+  const source = document.getElementById('rpt-body');
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if(!win){ alert('Pop-up blocked. Please allow pop-ups for this page.'); return; }
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8">
+    <title>Lab Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <style>
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:'Poppins',sans-serif;font-size:13px;color:#0F172A;background:#fff;padding:36px 44px}
+      :root{--primary:#4F46E5;--primary-light:#EEF2FF;--text:#0F172A;--text3:#64748B;--border:#E2E8F0;--border2:#CBD5E1;--success:#10B981;--danger:#EF4444;--warning:#F59E0B;--success-bg:#D1FAE5;--danger-bg:#FEE2E2;--warning-bg:#FEF3C7}
+      .rpt-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:3px solid var(--primary)}
+      .rpt-logo-box{width:48px;height:48px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;overflow:hidden;flex-shrink:0}
+      .rpt-logo-box img{width:100%;height:100%;object-fit:cover}
+      .rpt-center-name{font-size:18px;font-weight:700;color:var(--primary);line-height:1.2}
+      .rpt-center-sub{font-size:10.5px;color:var(--text3);margin-top:2px}
+      .rpt-meta{text-align:right}
+      .rpt-id{font-size:15px;font-weight:700;color:var(--text)}
+      .rpt-date{font-size:10.5px;color:var(--text3);margin-top:3px}
+      .rpt-badge{display:inline-block;margin-top:6px;background:var(--primary);color:#fff;padding:2px 10px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+      .rpt-barcode{font-family:monospace;font-size:9.5px;letter-spacing:.15em;color:var(--text3);margin-top:3px}
+      .rpt-patient-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;border:1px solid var(--border);border-radius:4px;padding:12px 14px}
+      .rfl{font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+      .rfv{font-size:12.5px;font-weight:600;color:var(--text)}
+      .rfs{font-size:10.5px;color:var(--text3);margin-top:2px}
+      .rpt-sec-title{font-size:10.5px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;margin-top:16px;padding-bottom:4px;border-bottom:1.5px solid var(--border2);display:flex;align-items:center;gap:4px}
+      .rpt-table{width:100%;border-collapse:collapse;margin-bottom:12px}
+      .rpt-table th{background:var(--primary);color:#fff;padding:7px 11px;font-size:10.5px;font-weight:600;text-align:left}
+      .rpt-table th:last-child{text-align:center}
+      .rpt-table td{padding:8px 11px;border-bottom:1px solid var(--border2);font-size:12px}
+      .rpt-table td:last-child{text-align:center}
+      .rpt-table tr:last-child td{border-bottom:none}
+      .rpt-table tr.abnormal td{background:#FFF7F7}
+      .s-normal{color:#10B981;font-weight:700}
+      .s-high{color:#EF4444;font-weight:700}
+      .s-low{color:#F59E0B;font-weight:700}
+      .rpt-remarks{background:#FFFBEB;border-left:3px solid #F59E0B;border-radius:0 4px 4px 0;padding:10px 14px;margin-top:4px;font-size:12px;color:var(--text);line-height:1.6}
+      .rpt-sig{display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;padding-top:14px;border-top:1px solid var(--border)}
+      .rpt-footer-note{font-size:10px;color:var(--text3);max-width:260px;line-height:1.6}
+      .rpt-sig-box{text-align:right}
+      .rpt-sig-line{width:140px;border-bottom:1.5px solid #0F172A;margin-bottom:4px;margin-left:auto}
+      .rpt-sig-name{font-size:11.5px;font-weight:700;color:var(--text)}
+      .rpt-sig-title{font-size:10px;color:var(--text3)}
+      @media print{body{padding:0}@page{margin:15mm}}
+    </style>
+  </head><body>`);
+  win.document.write(source.innerHTML);
+  win.document.write('</body></html>');
+  win.document.close();
+  win.onload = function(){ win.focus(); win.print(); };
+}
+
+/* ══════════ RESULT STATUS AUTO-FLAG ══════════ */
+function updateStatus(input,low,high,id){
+  const v=parseFloat(input.value);
+  const el=document.getElementById(id);if(!el)return;
+  if(isNaN(v)){el.className='result-status rs-normal';el.textContent='—';input.style.borderColor='';return;}
+  if(v>parseFloat(high)){el.className='result-status rs-high';el.textContent='High ↑';input.style.borderColor='var(--danger)';}
+  else if(v<parseFloat(low)){el.className='result-status rs-low';el.textContent='Low ↓';input.style.borderColor='var(--warning)';}
+  else{el.className='result-status rs-normal';el.textContent='Normal';input.style.borderColor='var(--success)';}
+}
+
+/* ══════════ PDF DOWNLOAD ══════════ */
+function downloadPDF(){
+  const source = document.getElementById('rpt-body');
+  const rptId = (document.querySelector('.rpt-actions .badge')||{}).textContent || 'Report';
+  // Temporarily add bottom padding so footer isn't clipped
+  const origPad = source.style.paddingBottom;
+  source.style.paddingBottom = '24px';
+  const opt = {
+    margin: [12, 10, 12, 10],
+    filename: rptId.replace('#','') + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+  const btn = document.querySelector('[onclick="downloadPDF()"]');
+  if(btn){ btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Generating…'; }
+  html2pdf().set(opt).from(source).save().then(()=>{
+    source.style.paddingBottom = origPad;
+    if(btn){ btn.disabled=false; btn.innerHTML='<i class="ti ti-download"></i> Save PDF'; }
+  });
+}
+
+/* ══════════ LOGO UPLOAD ══════════ */
+let savedLogo=null;
+function handleLogoUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>2*1024*1024){alert('Max 2MB');return;}
+  const r=new FileReader();
+  r.onload=ev=>{savedLogo=ev.target.result;applyLogo(savedLogo,f.name);};
+  r.readAsDataURL(f);
+}
+function applyLogo(url,name){
+  document.getElementById('logo-ph').style.display='none';
+  const img=document.getElementById('logo-img');img.src=url;img.style.display='block';
+  if(name)document.getElementById('logo-label').textContent=name;
+  document.getElementById('sb-logo-icon').innerHTML=`<img src="${url}" alt="Logo">`;
+  const ri=document.getElementById('rpt-logo-icon'),rImg=document.getElementById('rpt-logo-img');
+  if(ri)ri.style.display='none';if(rImg){rImg.src=url;rImg.style.display='block';}
+}
+function removeLogo(){
+  savedLogo=null;
+  document.getElementById('logo-ph').style.display='flex';
+  const img=document.getElementById('logo-img');img.style.display='none';img.src='';
+  document.getElementById('logo-label').textContent='Default Icon';
+  document.getElementById('logo-file').value='';
+  document.getElementById('sb-logo-icon').innerHTML='<i class="ti ti-dna-2"></i>';
+  const ri=document.getElementById('rpt-logo-icon'),rImg=document.getElementById('rpt-logo-img');
+  if(ri)ri.style.display='';if(rImg){rImg.style.display='none';rImg.src='';}
+}
+
+/* ══════════ SAVE SETTINGS ══════════ */
+function saveSettings(){
+  const name=document.getElementById('set-name').value.trim();
+  const addr=document.getElementById('set-addr').value.trim();
+  if(name){document.getElementById('sb-center-name').textContent=name;document.getElementById('rpt-center-name').textContent=name;}
+  if(addr)document.getElementById('rpt-center-sub').textContent=addr;
+  if(savedLogo)applyLogo(savedLogo);
+  const btn=document.querySelector('#page-settings .btn-primary');
+  const orig=btn.innerHTML;
+  btn.innerHTML='<i class="ti ti-check"></i> Saved!';btn.style.background='var(--success)';
+  setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2200);
+}
+
+/* ══════════ ADD TEST MODAL ══════════ */
+function saveAddTest(){
+  const name=document.getElementById('at-name').value.trim();
+  if(!name){document.getElementById('at-name').style.borderColor='var(--danger)';return;}
+  document.getElementById('at-name').style.borderColor='';
+  const cat=document.getElementById('at-category').value;
+  // Add to master test list for report generation
+  masterTests.push({name,cat,ref:'—',unit:'—'});
+  const tbody=document.getElementById('tests-tbody');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><strong>${name}</strong></td><td><span class="badge b-info">${cat}</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>Serum</td><td>—</td><td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-icon btn-sm"><i class="ti ti-edit"></i></button><button class="btn btn-ghost btn-icon btn-sm" onclick="this.closest('tr').remove()"><i class="ti ti-trash"></i></button></div></td>`;
+  tbody.appendChild(tr);
+  document.getElementById('at-name').value='';
+  closeAddTest();
+}
+
+/* ══════════ MASTER TEST LIST (for Report Generation Step 2) ══════════ */
+const masterTests = [
+  {name:'CBC',         cat:'CBC',                ref:'See report',   unit:'—'},
+  {name:'CRP',         cat:'CRP',                ref:'< 6',          unit:'mg/L'},
+  {name:'MP',          cat:'MP',                 ref:'Negative',     unit:'—'},
+  {name:'WIDAL',       cat:'WIDAL',              ref:'< 1:80',       unit:'titre'},
+  {name:'CUE',         cat:'CUE',                ref:'See report',   unit:'—'},
+  {name:'DENGUE',      cat:'DENGUE',             ref:'Non-reactive', unit:'—'},
+  {name:'RFT',         cat:'RFT',                ref:'See report',   unit:'—'},
+  {name:'LFT',         cat:'LFT',                ref:'See report',   unit:'—'},
+  {name:'LIPIDS',      cat:'LIPIDS',             ref:'< 200',        unit:'mg/dL'},
+  {name:'ESR',         cat:'ESR',                ref:'M:0-15 F:0-20',unit:'mm/hr'},
+  {name:'HBA1C',       cat:'HBA1C',              ref:'< 5.7',        unit:'%'},
+  {name:'FBS',         cat:'FBS',                ref:'70 – 99',      unit:'mg/dL'},
+  {name:'PLBS',        cat:'PLBS',               ref:'< 140',        unit:'mg/dL'},
+  {name:'CREATININE',  cat:'CREATININE',         ref:'0.7 – 1.2',    unit:'mg/dL'},
+  {name:'SERUM ELECTROLYTES', cat:'SERUM ELECTROLYTES', ref:'See report', unit:'mEq/L'},
+  {name:'TFT',         cat:'TFT',                ref:'See report',   unit:'—'},
+  {name:'IRON PROFILE',cat:'IRON PROFILE',       ref:'See report',   unit:'—'},
+  {name:'VIT D',       cat:'VIT D',              ref:'30 – 100',     unit:'ng/mL'},
+  {name:'VIT B12',     cat:'VIT B12',            ref:'200 – 900',    unit:'pg/mL'},
+  {name:'EGFR',        cat:'EGFR',               ref:'> 60',         unit:'mL/min/1.73m²'},
+  {name:'HOMOCYSTINE', cat:'HOMOCYSTINE',        ref:'5 – 15',       unit:'μmol/L'},
+  {name:'Blood Sugar Fasting', cat:'Blood Sugar', ref:'70 – 99',     unit:'mg/dL'},
+  {name:'Blood Sugar PP',      cat:'Blood Sugar', ref:'< 140',       unit:'mg/dL'},
+  {name:'Urine Routine',       cat:'Urine',       ref:'See report',  unit:'—'},
+  {name:'TSH',                 cat:'Thyroid',     ref:'0.4 – 4.0',   unit:'μIU/mL'},
+  {name:'T3',                  cat:'Thyroid',     ref:'0.6 – 1.8',   unit:'ng/mL'},
+  {name:'T4',                  cat:'Thyroid',     ref:'4.5 – 12.5',  unit:'μg/dL'},
+  {name:'SGOT / AST',          cat:'LFT',         ref:'10 – 40',     unit:'U/L'},
+  {name:'SGPT / ALT',          cat:'LFT',         ref:'7 – 56',      unit:'U/L'},
+  {name:'Serum Creatinine',    cat:'CREATININE',  ref:'0.7 – 1.2',   unit:'mg/dL'},
+  {name:'Urea',                cat:'RFT',         ref:'15 – 45',     unit:'mg/dL'},
+  {name:'Uric Acid',           cat:'RFT',         ref:'3.5 – 7.2',   unit:'mg/dL'},
+  {name:'Total Cholesterol',   cat:'LIPIDS',      ref:'< 200',       unit:'mg/dL'},
+  {name:'Triglycerides',       cat:'LIPIDS',      ref:'< 150',       unit:'mg/dL'},
+  {name:'HDL',                 cat:'LIPIDS',      ref:'> 40',        unit:'mg/dL'},
+  {name:'LDL',                 cat:'LIPIDS',      ref:'< 100',       unit:'mg/dL'},
+];
+
+function renderCrTests(filter){
+  const tbody=document.getElementById('cr-test-tbody');
+  if(!tbody)return;
+  const q=(filter||'').toLowerCase();
+  const catColors={CBC:'b-info',CRP:'b-info',MP:'b-warning',WIDAL:'b-warning',CUE:'b-gray',DENGUE:'b-danger',RFT:'b-info',LFT:'b-danger',LIPIDS:'b-warning',ESR:'b-gray',HBA1C:'b-success','Blood Sugar':'b-success',PLBS:'b-success',CREATININE:'b-info','SERUM ELECTROLYTES':'b-info',TFT:'b-gray','IRON PROFILE':'b-warning','VIT D':'b-warning','VIT B12':'b-warning',EGFR:'b-info',HOMOCYSTINE:'b-gray',Thyroid:'b-gray',Urine:'b-gray',Hormones:'b-info',Cardiac:'b-danger','Tumor Markers':'b-danger',FBS:'b-success'};
+  const rows=masterTests.filter(t=>!q||t.name.toLowerCase().includes(q)||t.cat.toLowerCase().includes(q));
+  tbody.innerHTML=rows.map(t=>`
+    <tr>
+      <td><strong>${t.name}</strong></td>
+      <td><span class="badge ${catColors[t.cat]||'b-gray'}">${t.cat}</span></td>
+      <td><input type="checkbox" class="cr-test-chk" value="${t.name}" data-ref="${t.ref}" data-unit="${t.unit}" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer"></td>
+    </tr>`).join('');
+}
+
+function filterCrTests(q){renderCrTests(q);}
+
+/* ══════════ CUSTOM FIELDS ══════════ */
+let customFields = [];
+
+function openCustomFields(){openAddTest();}
+function closeCustomFields(){closeAddTest();}
+
+// Live preview as user types
+['cf-label','cf-type','cf-placeholder'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){
+    el.addEventListener('input',updateCfPreview);
+    el.addEventListener('change',updateCfPreview);
+  }
+});
+
+function updateCfPreview(){
+  const label=document.getElementById('cf-label').value.trim();
+  const type=document.getElementById('cf-type').value;
+  const ph=document.getElementById('cf-placeholder').value.trim();
+  const preview=document.getElementById('cf-preview');
+  const inner=document.getElementById('cf-preview-inner');
+  if(!label){preview.style.display='none';return;}
+  preview.style.display='block';
+  inner.innerHTML=buildFieldHTML({label,type,placeholder:ph,id:'cf-prev-'+Date.now()},true);
+}
+
+function buildFieldHTML(f,isPreview){
+  const id=isPreview?'cf_preview_inp':'cf_'+f.id;
+  let inp='';
+  if(f.type==='textarea'){
+    inp=`<textarea class="form-textarea" id="${id}" placeholder="${f.placeholder||''}" style="min-height:56px"></textarea>`;
+  }else if(f.type==='select'){
+    const opts=(f.placeholder||'Option 1,Option 2').split(',').map(o=>`<option>${o.trim()}</option>`).join('');
+    inp=`<select class="form-select" id="${id}">${opts}</select>`;
+  }else if(f.type==='checkbox'){
+    inp=`<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="${id}" style="width:16px;height:16px;accent-color:var(--primary)"> ${f.placeholder||f.label}</label>`;
+  }else if(f.type==='radio'){
+    inp=`<div style="display:flex;gap:18px"><label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="${id}" style="accent-color:var(--primary)"> Yes</label><label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="${id}" style="accent-color:var(--primary)"> No</label></div>`;
+  }else{
+    inp=`<input class="form-input" type="${f.type}" id="${id}" placeholder="${f.placeholder||''}">`;
+  }
+  return`<div class="form-group" style="margin-bottom:0"><label class="form-label">${f.label}</label>${inp}</div>`;
+}
+
+function addCustomField(){
+  const label=document.getElementById('cf-label').value.trim();
+  const type=document.getElementById('cf-type').value;
+  const placeholder=document.getElementById('cf-placeholder').value.trim();
+  if(!label){document.getElementById('cf-label').style.borderColor='var(--danger)';return;}
+  document.getElementById('cf-label').style.borderColor='';
+  customFields.push({id:Date.now(),label,type,placeholder});
+  document.getElementById('cf-label').value='';
+  document.getElementById('cf-placeholder').value='';
+  document.getElementById('cf-type').selectedIndex=0;
+  document.getElementById('cf-preview').style.display='none';
+  renderCustomFields();
+}
+
+function removeCustomField(id){
+  customFields=customFields.filter(f=>f.id!==id);
+  renderCustomFields();
+}
+
+function renderCustomFields(){
+  const list=document.getElementById('cf-fields-list');
+  const empty=document.getElementById('cf-empty');
+  const rows=document.getElementById('cf-rows');
+  const count=document.getElementById('cf-count');
+  count.textContent=customFields.length+' field'+(customFields.length===1?'':'s');
+  if(customFields.length===0){list.style.display='none';empty.style.display='block';return;}
+  empty.style.display='none';list.style.display='block';
+  const typeLabels={text:'Text',number:'Number',date:'Date',time:'Time',textarea:'Textarea',select:'Dropdown',checkbox:'Checkbox',radio:'Yes/No'};
+  rows.innerHTML=customFields.map(f=>`
+    <div style="display:grid;grid-template-columns:1fr 110px 1fr 70px;gap:0;align-items:center;padding:9px 12px;border-top:1px solid var(--border);font-size:12.5px">
+      <div style="font-weight:600;color:var(--text)">${f.label}</div>
+      <div><span class="badge b-info" style="font-size:10px">${typeLabels[f.type]||f.type}</span></div>
+      <div style="color:var(--text3);font-size:12px">${f.placeholder||'—'}</div>
+      <div style="text-align:right;display:flex;gap:4px;justify-content:flex-end">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="editCustomField(${f.id})" title="Edit"><i class="ti ti-edit"></i></button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="removeCustomField(${f.id})" title="Delete" style="color:var(--danger)"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editCustomField(id){
+  const f=customFields.find(x=>x.id===id);
+  if(!f)return;
+  document.getElementById('cf-label').value=f.label;
+  document.getElementById('cf-type').value=f.type;
+  document.getElementById('cf-placeholder').value=f.placeholder||'';
+  removeCustomField(id);
+  updateCfPreview();
+  document.getElementById('cf-label').focus();
+}
+
+function saveCustomFields(){
+  // Inject fields into report entry result-row area
+  renderCustomFields();
+  // Show saved toast
+  const toast=document.createElement('div');
+  toast.style.cssText='position:fixed;bottom:24px;right:24px;background:#1e293b;color:#f1f5f9;padding:11px 18px;border-radius:6px;font-size:13px;font-weight:500;z-index:9999;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.25)';
+  toast.innerHTML='<i class="ti ti-check" style="color:#4ade80"></i> '+customFields.length+' custom field'+(customFields.length===1?'':'s')+' saved & applied.';
+  document.body.appendChild(toast);
+  setTimeout(()=>toast.remove(),3000);
+}
+
+/* ══════════ INIT ══════════ */
+renderPatients();
+</script>
+</body>
+</html>
